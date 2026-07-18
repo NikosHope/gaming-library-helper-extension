@@ -1,0 +1,106 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  background: #0d1724;
+  color: #ecf5ff;
+}
+
+body {
+  margin: 0;
+  width: 350px;
+  background:
+    radial-gradient(circle at 85% 0%, rgb(39 129 166 / 35%), transparent 42%),
+    linear-gradient(160deg, #12263a, #09111b 72%);
+}
+
+main {
+  padding: 20px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: #78d8ff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+
+h1 {
+  margin: 0 0 18px;
+  font-size: 23px;
+}
+
+.counts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.counts div {
+  display: grid;
+  gap: 2px;
+  padding: 10px;
+  border: 1px solid #28455e;
+  border-radius: 10px;
+  background: rgb(7 18 29 / 62%);
+}
+
+.counts strong {
+  font-size: 20px;
+}
+
+.counts span,
+#status {
+  color: #a9bed0;
+  font-size: 12px;
+}
+
+button {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 14px;
+  font:
+    700 13px/1 system-ui,
+    sans-serif;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.primary {
+  color: #062033;
+  background: #72d7ff;
+}
+
+.secondary {
+  color: #dceeff;
+  background: #213b52;
+}
+
+#status {
+  min-height: 30px;
+  margin: 8px 2px 12px;
+}
+
+.settings {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0 18px;
+  font-size: 13px;
+}
+
+label {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+input[type='checkbox'] {
+  margin-top: 1px;
+  accent-color: #72d7ff;
+}

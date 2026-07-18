@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gaming Library Helper</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">LOCAL LIBRARY</p>
+        <h1>Gaming Library Helper</h1>
+      </header>
+
+      <section class="counts" aria-label="Library counts">
+        <div><strong id="steam-count">—</strong><span>Steam</span></div>
+        <div><strong id="gog-count">—</strong><span>GOG</span></div>
+        <div><strong id="shared-count">—</strong><span>Both</span></div>
+      </section>
+
+      <button id="sync" class="primary" type="button">Sync this Steam/GOG tab</button>
+      <p id="status" role="status">Open a signed-in store tab, then sync.</p>
+
+      <section class="settings" aria-label="Page filters">
+        <label><input id="highlight-owned" type="checkbox" /> Highlight cross-owned games</label>
+        <label><input id="hide-owned" type="checkbox" /> Hide games owned on the other store</label>
+        <label><input id="hide-ignored" type="checkbox" /> Hide ignored games</label>
+      </section>
+
+      <button id="options" class="secondary" type="button">Library and settings</button>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

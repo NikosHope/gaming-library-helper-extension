@@ -1,0 +1,8 @@
+---
+description: Canonical architecture, privacy, testing, and delivery rules for Gaming Library Helper
+globs:
+alwaysApply: true
+---
+
+Follow @AGENTS.md for every change. For WebExtension-specific work, also read
+@.agents/skills/firefox-extension-development/SKILL.md.

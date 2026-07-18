@@ -1,0 +1,4 @@
+interface:
+  display_name: "Firefox Extension Development"
+  short_description: "Build and review this Firefox WebExtension safely"
+  default_prompt: "Use $firefox-extension-development to implement or review a Firefox extension change in this repository."

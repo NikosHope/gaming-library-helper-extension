@@ -1,0 +1,45 @@
+{
+  "name": "gaming-library-helper",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A local-first Firefox extension that unifies Steam and GOG ownership while browsing their stores.",
+  "type": "module",
+  "license": "MIT",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "wxt -b firefox --mv3",
+    "dev:firefox": "wxt -b firefox --mv3",
+    "build": "wxt build -b firefox --mv3",
+    "build:firefox": "wxt build -b firefox --mv3",
+    "zip:firefox": "wxt zip -b firefox --mv3",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "lint:addon": "web-ext lint --source-dir .output/firefox-mv3 --warnings-as-errors",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build:firefox && pnpm lint:addon",
+    "postinstall": "wxt prepare"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/firefox-webext-browser": "^143.0.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "eslint": "^10.7.0",
+    "globals": "^17.7.0",
+    "prettier": "^3.9.5",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.64.0",
+    "vitest": "^4.1.10",
+    "web-ext": "^10.5.0",
+    "wxt": "^0.20.27"
+  }
+}

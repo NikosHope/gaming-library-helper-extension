@@ -1,0 +1,184 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  background: #08111b;
+  color: #edf6ff;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at 90% -5%, rgb(44 153 200 / 28%), transparent 32rem), #08111b;
+}
+
+main {
+  width: min(1040px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 48px 0 80px;
+}
+
+header {
+  margin-bottom: 28px;
+}
+
+.eyebrow {
+  color: #70d6ff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 8px;
+  font-size: clamp(30px, 5vw, 48px);
+}
+
+section {
+  margin-top: 18px;
+  padding: 22px;
+  border: 1px solid #28445a;
+  border-radius: 16px;
+  background: rgb(15 30 44 / 82%);
+}
+
+.hint {
+  color: #a7bdcf;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.form-grid label:not(.checkbox) {
+  display: grid;
+  gap: 7px;
+  color: #bfd1df;
+  font-size: 13px;
+}
+
+.form-grid .wide {
+  grid-column: 1 / -1;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+input {
+  min-width: 0;
+  padding: 9px 11px;
+  border: 1px solid #3b5d75;
+  border-radius: 8px;
+  color: inherit;
+  background: #081522;
+}
+
+input[type='checkbox'] {
+  min-width: auto;
+  accent-color: #70d6ff;
+}
+
+button {
+  padding: 9px 13px;
+  border: 0;
+  border-radius: 8px;
+  color: #062033;
+  background: #70d6ff;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+#price-status {
+  margin-left: 12px;
+  color: #a7bdcf;
+  font-size: 13px;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 18px;
+}
+
+.section-heading input {
+  width: min(320px, 45%);
+}
+
+.table-wrap {
+  overflow: auto;
+  max-height: 520px;
+  margin-top: 14px;
+  border: 1px solid #29465c;
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #213b50;
+  text-align: left;
+  font-size: 13px;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: #11283a;
+}
+
+.small {
+  padding: 6px 9px;
+  font-size: 12px;
+}
+
+.device-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.device-grid article {
+  padding: 16px;
+  border: 1px solid #2f5068;
+  border-radius: 12px;
+  background: #0b1b29;
+}
+
+.device-grid article p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 640px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-grid .wide {
+    grid-column: auto;
+  }
+  .section-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .section-heading input {
+    width: auto;
+  }
+}

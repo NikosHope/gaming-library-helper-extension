@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gaming Library Helper settings</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">GAMING LIBRARY HELPER</p>
+        <h1>Library and settings</h1>
+        <p>Local-first Steam + GOG ownership data. No analytics, cookies, or passwords.</p>
+      </header>
+
+      <section>
+        <h2>Price provider</h2>
+        <p class="hint">
+          IsThereAnyDeal is optional. Use only an API key authorized for this app; private use may
+          require contacting ITAD. Enabling sends a game title/ID to ITAD from product pages.
+        </p>
+        <div class="form-grid">
+          <label class="checkbox"
+            ><input id="prices-enabled" type="checkbox" /> Enable prices</label
+          >
+          <label>Country <input id="country" maxlength="2" autocomplete="country" /></label>
+          <label class="wide"
+            >ITAD API key <input id="api-key" type="password" autocomplete="off"
+          /></label>
+        </div>
+        <button id="save-prices" type="button">Save price settings</button>
+        <span id="price-status" role="status"></span>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <div>
+            <h2>Library</h2>
+            <p id="summary" class="hint"></p>
+          </div>
+          <input id="search" type="search" placeholder="Filter titles…" />
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Game</th>
+                <th>Steam</th>
+                <th>GOG</th>
+                <th>Ignored</th>
+              </tr>
+            </thead>
+            <tbody id="games"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Performance devices</h2>
+        <div id="devices" class="device-grid"></div>
+        <p class="hint">
+          Each assessment belongs to an explicit launch path: official native build, community
+          source port, compatibility layer, VM, or streaming. CPU translation, graphics translation,
+          render resolution, upscaling, in-game or Vulkan-layer frame generation, base FPS,
+          presented FPS, and VRR remain separate evidence.
+        </p>
+      </section>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
