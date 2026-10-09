@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# This installer targets the fixed ubuntu-latest/x64 GitHub-hosted runner.
+# This installer targets the fixed ubuntu-24.04/x64 GitHub-hosted runner.
 tool_dir="${RUNNER_TEMP:?GitHub runner temporary directory is required}/glh-tools"
 mkdir -p "$tool_dir"
 cd "$tool_dir"
