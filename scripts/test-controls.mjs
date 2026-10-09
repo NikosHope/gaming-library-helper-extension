@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import test from 'node:test';
 import { inspectManifest } from './lib/manifest.mjs';
-import { forbiddenPath, inspectPublicFile } from './lib/publication.mjs';
+import { fileContents, forbiddenPath, inspectPublicFile } from './lib/publication.mjs';
 import { evaluateAudit } from './lib/audit.mjs';
 
 test('publication guard rejects private, ignored and generated paths', () => {
@@ -29,6 +31,20 @@ test('publication guard rejects private, ignored and generated paths', () => {
     1,
   );
   assert.equal(inspectPublicFile('huge.bin', Buffer.alloc(5 * 1024 * 1024 + 1)).length, 1);
+});
+
+test('publication reads symlink metadata without following its target', () => {
+  const root = mkdtempSync(join(tmpdir(), 'glh-symlink-test-'));
+  try {
+    const target = join(root, 'private-fixture.txt');
+    const link = join(root, 'link');
+    writeFileSync(target, 'fictional private file contents');
+    symlinkSync(target, link);
+    assert.equal(fileContents(link).toString(), target);
+    assert.equal(fileContents(target).toString(), 'fictional private file contents');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test('manifest guard blocks permission escalation and weakened CSP', () => {

@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, 'codex/**']
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -75,6 +75,8 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: firefox-unsigned-and-reviewer-source
+          # Only the already inspected ZIPs and checksums are uploaded from hidden .output.
+          include-hidden-files: true
           path: |
             .output/*.zip
             .output/SHA256SUMS
