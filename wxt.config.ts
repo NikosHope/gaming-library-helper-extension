@@ -3,6 +3,19 @@ import { defineConfig } from 'wxt';
 export default defineConfig({
   srcDir: 'src',
   zip: {
+    // WXT excludes tests and dotfiles by default; the reviewer must reproduce all checks.
+    includeSources: [
+      'tests/**',
+      '.gitignore',
+      '.prettierrc.json',
+      '.prettierignore',
+      '.secretlintrc.json',
+      '.nvmrc',
+      '.gitattributes',
+      '.github/**',
+      '.husky/pre-commit',
+      '.husky/pre-push',
+    ],
     excludeSources: [
       'artifacts/**',
       'exports/**',

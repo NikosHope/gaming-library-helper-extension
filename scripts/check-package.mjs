@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { readdirSync } from 'node:fs';
-import { forbiddenPath } from './lib/publication.mjs';
+import { forbiddenPath, gitFiles } from './lib/publication.mjs';
 
 const archives = readdirSync('.output').filter((file) => file.endsWith('.zip'));
 if (archives.length !== 2 || !archives.some((file) => file.endsWith('-sources.zip')))
@@ -20,6 +20,10 @@ for (const archive of archives) {
         'pnpm-workspace.yaml',
         'SOURCE_CODE_REVIEW.md',
         'src/entrypoints/background.ts',
+        '.secretlintrc.json',
+        '.prettierrc.json',
+        'config/extension-policy.json',
+        ...gitFiles().filter((file) => /^(src|tests|scripts|config|public)\//.test(file)),
       ]
     : ['manifest.json', 'licenses/playnite-extensions-MIT.txt'];
   for (const file of required)

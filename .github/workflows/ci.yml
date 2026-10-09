@@ -60,6 +60,16 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm zip:firefox
       - run: pnpm lint:addon && pnpm check:manifest && pnpm check:package
+      - name: Reproduce all checks from the reviewer source ZIP
+        run: |
+          source_dir="$RUNNER_TEMP/reviewer-source"
+          mkdir -p "$source_dir"
+          unzip -q .output/*-sources.zip -d "$source_dir"
+          cd "$source_dir"
+          git init
+          git add .
+          pnpm install --frozen-lockfile
+          pnpm verify
       - name: Checksums
         run: sha256sum .output/*.zip > .output/SHA256SUMS
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
