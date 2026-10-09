@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync, lstatSync, readFileSync, readlinkSync } from 'node:fs';
+import { closeSync, constants, existsSync, openSync, readFileSync, readlinkSync } from 'node:fs';
 
 export function gitFiles(staged = false) {
   const args = staged
@@ -12,7 +12,17 @@ export function gitFiles(staged = false) {
 
 export function fileContents(file, staged = false) {
   if (staged) return execFileSync('git', ['show', `:${file}`]);
-  return lstatSync(file).isSymbolicLink() ? Buffer.from(readlinkSync(file)) : readFileSync(file);
+  let descriptor;
+  try {
+    // Inspect and read through one descriptor, never following a swapped symlink.
+    descriptor = openSync(file, constants.O_RDONLY | constants.O_NOFOLLOW);
+    return readFileSync(descriptor);
+  } catch (error) {
+    if (error.code !== 'ELOOP') throw error;
+    return Buffer.from(readlinkSync(file));
+  } finally {
+    if (descriptor !== undefined) closeSync(descriptor);
+  }
 }
 
 export function allowedSymlink(file, target) {

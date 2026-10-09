@@ -2,7 +2,7 @@ name: Security
 
 on:
   push:
-    branches: [main, 'codex/**']
+    branches: [main]
   pull_request:
   schedule:
     - cron: '19 8 * * 1'
