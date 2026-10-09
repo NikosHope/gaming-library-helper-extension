@@ -2,20 +2,37 @@ import { defineConfig } from 'wxt';
 
 export default defineConfig({
   srcDir: 'src',
+  zip: {
+    excludeSources: [
+      'artifacts/**',
+      'exports/**',
+      'downloads/**',
+      'coverage/**',
+      '*.log',
+      '.env*',
+      '*.pem',
+      '*.key',
+    ],
+    exclude: ['acceptance-*.html', 'acceptance-*.js', 'verified-steam-metadata.json'],
+  },
   manifest: ({ browser }) => ({
     name: 'Gaming Library Helper',
-    description:
-      'Shows Steam and GOG ownership, cross-store prices, ignored games, and device performance notes.',
-    permissions: ['storage'],
+    description: 'Shows Steam and GOG ownership, ignored games, and device performance notes.',
+    permissions: ['storage', 'alarms'],
+    optional_host_permissions: [
+      'https://api.steampowered.com/*',
+      'https://api.steamcmd.net/*',
+      'https://store.epicgames.com/*',
+      'https://www.amazon.com/*',
+      'https://api.amazon.com/*',
+      'https://gaming.amazon.com/*',
+      'https://account.battle.net/*',
+    ],
     host_permissions: [
       'https://store.steampowered.com/*',
       'https://www.gog.com/*',
       'https://gog.com/*',
       'https://embed.gog.com/*',
-    ],
-    optional_host_permissions: [
-      'https://api.isthereanydeal.com/*',
-      'https://api.steampowered.com/*',
     ],
     browser_specific_settings:
       browser === 'firefox'
@@ -25,7 +42,7 @@ export default defineConfig({
               strict_min_version: '142.0',
               data_collection_permissions: {
                 required: ['none'],
-                optional: ['websiteContent', 'authenticationInfo'],
+                optional: ['authenticationInfo', 'websiteContent'],
               },
             },
           }

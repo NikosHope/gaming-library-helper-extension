@@ -1,0 +1,19 @@
+{
+  "gameAccounts": [
+    { "titleId": 5730135, "localizedGameName": "World of Warcraft®", "gameAccountStatus": "Trial" },
+    { "titleId": 1465140039, "localizedGameName": "Hearthstone®", "gameAccountStatus": "Good" },
+    { "titleId": 1146246220, "localizedGameName": "Diablo®", "gameAccountStatus": "Good" },
+    {
+      "titleId": 5198665,
+      "localizedGameName": "Diablo® II: Resurrected™",
+      "gameAccountStatus": "Good"
+    },
+    { "titleId": 17459, "localizedGameName": "Diablo® III", "gameAccountStatus": "Good" },
+    {
+      "titleId": 21297,
+      "localizedGameName": "StarCraft®: Remastered",
+      "gameAccountStatus": "Good"
+    },
+    { "titleId": 21298, "localizedGameName": "StarCraft® II", "gameAccountStatus": "Good" }
+  ]
+}

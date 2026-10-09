@@ -4,8 +4,7 @@
 
 Build a local-first Firefox WebExtension that helps one person browse Steam and GOG without
 buying duplicates. The extension imports owned-game snapshots, matches titles conservatively,
-highlights cross-store ownership, can hide cross-owned or ignored games, and can show an
-opt-in price quote from an approved provider.
+highlights cross-store ownership, can hide cross-owned or ignored games, and keeps library data local.
 
 Read `docs/architecture.md` before changing boundaries or storage. Use the repo skill
 `firefox-extension-development` for manifest, content-script, store-adapter, permission,
@@ -45,7 +44,7 @@ privacy, and release work.
 - Never ship remote executable code, `eval`, dynamic script injection, or secrets in `.env` files.
 - Render untrusted store/API text with `textContent`; do not assign it to `innerHTML`.
 - Validate runtime messages and network responses. Content scripts are untrusted callers.
-- Cache price responses, respect provider rate limits, and never remove affiliate parameters.
+- Respect store rate limits and bound retries during library sync.
 - Do not copy code from a third-party repository until its license is recorded in
   `docs/research.md` and compatibility with this MIT project is confirmed. GPL projects are
   reference-only unless the repository license is intentionally changed.
@@ -53,7 +52,7 @@ privacy, and release work.
 ## Change discipline
 
 - Prefer a narrow vertical slice with tests over broad scaffolding without behavior.
-- Update docs when permissions, data flows, matching rules, or provider contracts change.
+- Update docs when permissions, data flows, matching rules, or store contracts change.
 - Add fixtures for selector/parser changes. Never make live store pages the only test oracle.
 - Run `pnpm verify` before declaring a change complete.
 - Review the generated `.output/firefox-mv3/manifest.json` after manifest or entrypoint changes.

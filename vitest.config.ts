@@ -6,14 +6,8 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html'],
-      include: [
-        'src/core/library.ts',
-        'src/core/migration.ts',
-        'src/core/normalize.ts',
-        'src/core/performance.ts',
-        'src/core/visibility.ts',
-      ],
+      reporter: ['text', 'html', 'lcov', 'json-summary'],
+      include: ['src/core/**/*.ts', 'src/adapters/**/*.ts', 'src/background/**/*.ts'],
       thresholds: {
         statements: 80,
         branches: 75,

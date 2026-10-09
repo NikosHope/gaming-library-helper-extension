@@ -1,5 +1,27 @@
 import { z } from 'zod/v3';
-import { LibraryStateSchema, type LibraryState, type Platform } from './schema';
+import { classifyRef, separateProductKinds } from './products';
+import {
+  CanonicalGameSchema,
+  StoreGameRefSchema,
+  SnapshotMetaSchema,
+  LibraryStateSchema,
+  type LibraryState,
+  type Platform,
+} from './schema';
+
+const LegacyStoreSchema = z.enum(['steam', 'gog']);
+const LegacyLibraryStateV4Schema = LibraryStateSchema.extend({ version: z.literal(4) });
+const LegacyGameSchema = CanonicalGameSchema.extend({
+  storeRefs: z
+    .record(LegacyStoreSchema, StoreGameRefSchema.extend({ store: LegacyStoreSchema }))
+    .default({}),
+});
+const LegacyLibraryStateV3Schema = LibraryStateSchema.extend({
+  version: z.literal(3),
+  games: z.array(LegacyGameSchema),
+  snapshots: z.record(LegacyStoreSchema, SnapshotMetaSchema),
+});
+const LegacyLibraryStateV2Schema = LegacyLibraryStateV3Schema.extend({ version: z.literal(2) });
 
 const LegacyPerformanceAssessmentSchema = z
   .object({
@@ -55,6 +77,14 @@ export function migrateLibraryState(value: unknown): LibraryState | undefined {
   const current = LibraryStateSchema.safeParse(value);
   if (current.success) return current.data;
 
+  const v4 = LegacyLibraryStateV4Schema.safeParse(value);
+  if (v4.success) return upgrade(v4.data);
+
+  const previous = LegacyLibraryStateV3Schema.safeParse(value);
+  if (previous.success) return upgrade(previous.data);
+  const older = LegacyLibraryStateV2Schema.safeParse(value);
+  if (older.success) return upgrade(older.data);
+
   const legacy = LegacyLibraryStateV1Schema.safeParse(value);
   if (!legacy.success) return undefined;
 
@@ -107,5 +137,25 @@ export function migrateLibraryState(value: unknown): LibraryState | undefined {
     return { ...game, launchPaths, performance };
   });
 
-  return LibraryStateSchema.parse({ ...legacy.data, version: 2, games: upgradedGames });
+  const upgraded = LegacyLibraryStateV3Schema.parse({
+    ...legacy.data,
+    version: 3,
+    games: upgradedGames,
+  });
+  return upgrade(upgraded);
+}
+
+function upgrade(value: Omit<LibraryState, 'version'> & { version: number }): LibraryState {
+  return separateProductKinds(
+    LibraryStateSchema.parse({
+      ...value,
+      version: 5,
+      games: value.games.map((game) => ({
+        ...game,
+        storeRefs: Object.fromEntries(
+          Object.entries(game.storeRefs).map(([store, ref]) => [store, classifyRef(ref)]),
+        ),
+      })),
+    }),
+  );
 }

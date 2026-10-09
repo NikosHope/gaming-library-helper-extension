@@ -1,0 +1,21 @@
+name: Feature request
+description: Describe a user need and its privacy or permission impact.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed behavior and alternatives
+    validations:
+      required: true
+  - type: textarea
+    id: privacy
+    attributes:
+      label: Data, permissions and store compatibility
+      description: Identify any new network service or data collection.

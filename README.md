@@ -1,45 +1,61 @@
 # Gaming Library Helper
 
-Firefox-расширение для единой локальной библиотеки Steam + GOG. Оно помогает не покупать игры
-повторно: подсвечивает владение на другой платформе, умеет скрывать уже купленные и игнорируемые
-игры и подготовлено к показу соседней цены через явно подключаемого провайдера.
+[![CI](https://github.com/NikosHope/gaming-library-helper-extension/actions/workflows/ci.yml/badge.svg)](https://github.com/NikosHope/gaming-library-helper-extension/actions/workflows/ci.yml)
+[![Security](https://github.com/NikosHope/gaming-library-helper-extension/actions/workflows/security.yml/badge.svg)](https://github.com/NikosHope/gaming-library-helper-extension/actions/workflows/security.yml)
+[![CodeQL](https://github.com/NikosHope/gaming-library-helper-extension/actions/workflows/codeql.yml/badge.svg)](https://github.com/NikosHope/gaming-library-helper-extension/actions/workflows/codeql.yml)
 
-## Текущий вертикальный срез
+A local-first Firefox extension that helps you avoid buying games you already own. It imports
+owned-game snapshots from Steam, GOG, Epic, Amazon Games and Battle.net, and highlights or hides
+cross-owned and ignored games while you browse Steam and GOG.
 
-- Firefox Manifest V3 на WXT + TypeScript.
-- Локальная версия модели библиотеки и консервативное сопоставление названий.
-- Импорт Steam/GOG из уже авторизованной вкладки без чтения cookies.
-- Подсветка и скрытие карточек Steam/GOG.
-- Список игнорирования и локальные настройки.
-- Версионированная модель путей запуска и производительности для Steam Deck LCD Docked и MacBook
-  Pro M5 24 GB: native/community ports, Proton/Wine/CrossOver, Rosetta/FEX, graphics translation,
-  FSR/MetalFX, Windows Lossless Scaling/community lsfg-vk, base/presented FPS и VRR хранятся
-  раздельно.
-- Опциональный адаптер IsThereAnyDeal; выключен до ввода разрешённого API key и согласия на
-  передачу данных.
+**Development preview.** There is no published, Mozilla-signed release yet. Store endpoints and
+markup can change. See [provider support and limitations](docs/library-sync.md).
 
-## Запуск
+## Features
 
-Требования: Node.js 22+ и pnpm 11.
+- Conservative matching: exact normalized titles and explicit aliases; ambiguous matches need review.
+- Atomic imports: an incomplete or failed sync keeps your last successful snapshot.
+- Local storage, no analytics, no telemetry, and optional provider access requested when enabled.
+- Disabled-by-default automatic sync while Firefox is running, with per-provider receipts.
+- Separate games, DLC, tools and unknown products. Catalog metadata never creates ownership.
+- Device-specific performance records that distinguish native builds, translation, base FPS,
+  generated FPS, frame pacing, upscaling and VRR.
+
+Steam/GOG/Epic/Battle.net use an existing signed-in store tab without reading cookie values.
+Amazon Games uses an explicit OAuth connection; its credentials stay in a separate extension-local
+key and are excluded from library views and exports. See [PRIVACY.md](PRIVACY.md).
+
+## Develop
+
+Use Node.js 24 LTS (Node.js 22.22+ also supported) and the exact pnpm version in `package.json`.
 
 ```bash
-pnpm install
+corepack enable
+corepack prepare pnpm@11.19.0 --activate
+pnpm install --frozen-lockfile
 pnpm dev:firefox
 ```
 
-WXT откроет отдельный профиль Firefox с временно установленным расширением. Для полной проверки:
+WXT opens a separate Firefox development profile with a temporary extension. Temporary installation
+does not establish persistence after Firefox restarts.
 
 ```bash
-pnpm verify
+pnpm verify         # policy, secrets, formatting, lint, types, tests, coverage, build, add-on lint
+pnpm check:audit    # current dependency vulnerabilities and bounded exceptions
+pnpm zip:firefox
+pnpm check:package  # archive paths, required sources and CRCs
 ```
 
-## Принципы
+Git hooks are installed by `pnpm install`: pre-commit checks the exact staged files for private data
+and secrets; pre-push runs `pnpm verify`. GitHub independently requires CI checks before merging.
 
-- local-first: библиотека и заметки остаются в `browser.storage.local`;
-- минимум разрешений и отсутствие телеметрии;
-- точное автоматическое сопоставление, неоднозначные пары требуют подтверждения;
-- последняя успешная библиотека не стирается при поломке API или разметки магазина;
-- никаких паролей, cookies, встроенных API-ключей или удалённого исполняемого кода.
+Read [CONTRIBUTING.md](CONTRIBUTING.md), [development controls](docs/development.md),
+[architecture](docs/architecture.md) and [release procedure](docs/releasing.md).
 
-Архитектура описана в [docs/architecture.md](docs/architecture.md), исследованные решения — в
-[docs/research.md](docs/research.md), план развития — в [docs/roadmap.md](docs/roadmap.md).
+## Security and licensing
+
+Report vulnerabilities through [private vulnerability reporting](https://github.com/NikosHope/gaming-library-helper-extension/security/advisories/new).
+Never post credentials, account identifiers or personal library exports in public issues.
+
+The project is [MIT licensed](LICENSE). Compatible third-party contract adaptations and retained
+notices are documented in [docs/research.md](docs/research.md). GPL projects are reference-only.

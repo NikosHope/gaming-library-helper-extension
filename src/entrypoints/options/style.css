@@ -53,30 +53,6 @@ section {
   line-height: 1.5;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 140px;
-  gap: 14px;
-  margin: 18px 0;
-}
-
-.form-grid label:not(.checkbox) {
-  display: grid;
-  gap: 7px;
-  color: #bfd1df;
-  font-size: 13px;
-}
-
-.form-grid .wide {
-  grid-column: 1 / -1;
-}
-
-.checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 input {
   min-width: 0;
   padding: 9px 11px;
@@ -84,11 +60,6 @@ input {
   border-radius: 8px;
   color: inherit;
   background: #081522;
-}
-
-input[type='checkbox'] {
-  min-width: auto;
-  accent-color: #70d6ff;
 }
 
 button {
@@ -99,12 +70,6 @@ button {
   background: #70d6ff;
   font-weight: 750;
   cursor: pointer;
-}
-
-#price-status {
-  margin-left: 12px;
-  color: #a7bdcf;
-  font-size: 13px;
 }
 
 .section-heading {
@@ -152,7 +117,7 @@ th {
 
 .device-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
   gap: 12px;
 }
 
@@ -167,18 +132,88 @@ th {
   margin-bottom: 0;
 }
 
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+input[type='checkbox'] {
+  min-width: auto;
+  accent-color: #70d6ff;
+}
+.sync-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.sync-heading h2 {
+  margin-bottom: 8px;
+}
+.sync-intro,
+.sync-note {
+  margin-bottom: 0;
+}
+.sync-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+select {
+  border: 1px solid #3b5d75;
+  background: #081522;
+  color: #edf6ff;
+  padding: 9px 11px;
+  border-radius: 8px;
+}
+.sync-status {
+  color: #70d6ff;
+  font-size: 13px;
+  margin: 10px 0;
+}
+.status-pill {
+  display: inline-block;
+  border-radius: 99px;
+  border: 1px solid #496278;
+  padding: 4px 8px;
+  color: #a7bdcf;
+  font-size: 12px;
+}
+.pending {
+  color: #ffd184;
+  border-color: #806744;
+}
+button:disabled {
+  background: #31495c;
+  color: #a7bdcf;
+  cursor: default;
+}
+.sync-meta {
+  font-size: 12px;
+  color: #a7bdcf;
+}
+.store-details {
+  margin: 6px 0 0;
+  max-width: 290px;
+}
+.store-details:empty,
+#sync-message:empty {
+  display: none;
+}
+
 @media (max-width: 640px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-  .form-grid .wide {
-    grid-column: auto;
-  }
-  .section-heading {
+  .section-heading,
+  .sync-heading {
     align-items: stretch;
     flex-direction: column;
   }
   .section-heading input {
     width: auto;
   }
+}
+
+.sync-table table {
+  min-width: 640px;
 }

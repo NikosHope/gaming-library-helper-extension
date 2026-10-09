@@ -1,0 +1,2 @@
+pnpm check:public --staged
+pnpm check:secrets --staged

@@ -10,3 +10,19 @@ coverage/
 !.env.example
 .claude/settings.local.json
 CLAUDE.local.md
+
+# Local previews and personal library exports
+artifacts/local/
+
+# Personal data and local tooling must never enter public history.
+artifacts/
+exports/
+downloads/
+*.xpi
+*.zip
+*.pem
+*.key
+.web-extension-id
+.aws/
+.codex/
+.husky/_/

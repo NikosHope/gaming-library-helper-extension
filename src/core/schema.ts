@@ -1,7 +1,34 @@
 import { z } from 'zod/v3';
 
-export const StoreSchema = z.enum(['steam', 'gog']);
+export const StoreSchema = z.enum(['steam', 'gog', 'epic', 'amazon', 'battlenet']);
 export type Store = z.infer<typeof StoreSchema>;
+
+export const ProductKindSchema = z.enum(['game', 'component', 'tool', 'auxiliary', 'unknown']);
+export type ProductKind = z.infer<typeof ProductKindSchema>;
+export const ProductClassificationSchema = z
+  .object({
+    kind: ProductKindSchema,
+    componentType: z
+      .enum(['beta', 'mode', 'dlc', 'demo', 'localization', 'core', 'other'])
+      .optional(),
+    label: z.string().min(1).optional(),
+    source: z.enum(['store-metadata', 'reviewed-rule', 'community-rule']),
+    confidence: z.enum(['primary', 'community']).default('primary'),
+    evidenceUrls: z.array(z.string().url()).min(1),
+    parent: z
+      .object({
+        store: StoreSchema,
+        storeId: z.string().min(1),
+        title: z.string().min(1),
+        evidenceUrl: z.string().url(),
+      })
+      .optional(),
+  })
+  .refine(
+    (value) => !value.parent || value.kind === 'component',
+    'Only components can have a parent',
+  );
+export type ProductClassification = z.infer<typeof ProductClassificationSchema>;
 
 export const StoreGameRefSchema = z.object({
   store: StoreSchema,
@@ -12,6 +39,7 @@ export const StoreGameRefSchema = z.object({
   owned: z.boolean().default(true),
   ignoredAtSource: z.boolean().default(false),
   importedAt: z.string().datetime(),
+  classification: ProductClassificationSchema.optional(),
 });
 export type StoreGameRef = z.infer<typeof StoreGameRefSchema>;
 
@@ -135,29 +163,10 @@ export const CanonicalGameSchema = z.object({
 });
 export type CanonicalGame = z.infer<typeof CanonicalGameSchema>;
 
-export const PriceQuoteSchema = z.object({
-  provider: z.literal('itad'),
-  gameTitle: z.string().min(1),
-  store: StoreSchema,
-  amount: z.number().nonnegative(),
-  currency: z.string().length(3),
-  regularAmount: z.number().nonnegative().optional(),
-  discountPercent: z.number().min(0).max(100).optional(),
-  url: z.string().url(),
-  fetchedAt: z.string().datetime(),
-  expiresAt: z.string().datetime(),
-});
-export type PriceQuote = z.infer<typeof PriceQuoteSchema>;
-
 export const SettingsSchema = z.object({
   highlightOwnedOnOtherStore: z.boolean().default(true),
   hideOwnedOnOtherStore: z.boolean().default(false),
   hideIgnored: z.boolean().default(true),
-  prices: z.object({
-    enabled: z.boolean().default(false),
-    country: z.string().length(2).default('CA'),
-    apiKey: z.string().default(''),
-  }),
 });
 export type Settings = z.infer<typeof SettingsSchema>;
 
@@ -168,12 +177,11 @@ export const SnapshotMetaSchema = z.object({
 });
 
 export const LibraryStateSchema = z.object({
-  version: z.literal(2),
+  version: z.literal(5),
   games: z.array(CanonicalGameSchema),
   snapshots: z.record(StoreSchema, SnapshotMetaSchema),
   settings: SettingsSchema,
   devices: z.array(DeviceProfileSchema),
-  priceCache: z.record(z.string(), PriceQuoteSchema),
 });
 export type LibraryState = z.infer<typeof LibraryStateSchema>;
 

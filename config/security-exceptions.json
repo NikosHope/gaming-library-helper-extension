@@ -1,0 +1,15 @@
+{
+  "exceptions": [
+    {
+      "advisory": "GHSA-86w9-cpqp-85rv",
+      "module": "node-forge",
+      "version": "1.4.0",
+      "expires": "2026-11-09",
+      "paths": [
+        ".>web-ext>@devicefarmer/adbkit>node-forge",
+        ".>wxt>web-ext-run>@devicefarmer/adbkit>node-forge"
+      ],
+      "reason": "Development-only Android ADB tooling dependency. The extension does not bundle node-forge or use its RSA verification. The advisory names 1.4.1 as patched, but npm publishes only 1.4.0 as of 2026-10-09. Remove this exception when the upstream patch is published."
+    }
+  ]
+}

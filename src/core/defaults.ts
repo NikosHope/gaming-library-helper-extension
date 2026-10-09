@@ -4,11 +4,6 @@ export const DEFAULT_SETTINGS: Settings = {
   highlightOwnedOnOtherStore: true,
   hideOwnedOnOtherStore: false,
   hideIgnored: true,
-  prices: {
-    enabled: false,
-    country: 'CA',
-    apiKey: '',
-  },
 };
 
 export const DEFAULT_DEVICES: DeviceProfile[] = [
@@ -40,11 +35,10 @@ export const DEFAULT_DEVICES: DeviceProfile[] = [
 
 export function createDefaultState(): LibraryState {
   return {
-    version: 2,
+    version: 5,
     games: [],
     snapshots: {},
     settings: structuredClone(DEFAULT_SETTINGS),
     devices: structuredClone(DEFAULT_DEVICES),
-    priceCache: {},
   };
 }

@@ -11,26 +11,100 @@
       <header>
         <p class="eyebrow">GAMING LIBRARY HELPER</p>
         <h1>Library and settings</h1>
-        <p>Local-first Steam + GOG ownership data. No analytics, cookies, or passwords.</p>
+        <p>
+          Store libraries stay on this device. No analytics, cookies, or passwords are collected.
+        </p>
       </header>
 
-      <section>
-        <h2>Price provider</h2>
-        <p class="hint">
-          IsThereAnyDeal is optional. Use only an API key authorized for this app; private use may
-          require contacting ITAD. Enabling sends a game title/ID to ITAD from product pages.
-        </p>
-        <div class="form-grid">
+      <section aria-label="Library sync">
+        <div class="sync-heading">
+          <div>
+            <h2>Library sync</h2>
+            <p class="hint sync-intro">
+              Keep ownership on this device. Sign in on each store yourself.
+            </p>
+          </div>
           <label class="checkbox"
-            ><input id="prices-enabled" type="checkbox" /> Enable prices</label
+            ><input id="auto-sync" type="checkbox" disabled /> Auto sync</label
           >
-          <label>Country <input id="country" maxlength="2" autocomplete="country" /></label>
-          <label class="wide"
-            >ITAD API key <input id="api-key" type="password" autocomplete="off"
-          /></label>
         </div>
-        <button id="save-prices" type="button">Save price settings</button>
-        <span id="price-status" role="status"></span>
+        <div class="sync-controls">
+          <label class="checkbox"
+            >Sync every
+            <select id="interval" aria-label="Sync interval" disabled>
+              <option value="24">24 hours</option>
+              <option value="168" selected>7 days</option>
+              <option value="720">30 days</option>
+            </select>
+          </label>
+          <button id="sync-now" type="button" disabled>Sync now</button>
+          <span class="sync-meta">While Firefox is running</span>
+        </div>
+        <div class="table-wrap sync-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Store</th>
+                <th>Library</th>
+                <th>Last successful sync</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Steam</td>
+                <td>
+                  <span id="steam-status" class="status-pill">Loading…</span>
+                  <p id="steam-details" class="hint store-details"></p>
+                </td>
+                <td id="steam-last-success">—</td>
+                <td><button id="open-steam" class="small" type="button">Open Steam</button></td>
+              </tr>
+              <tr>
+                <td>GOG</td>
+                <td>
+                  <span id="gog-status" class="status-pill">Loading…</span>
+                  <p id="gog-details" class="hint store-details"></p>
+                </td>
+                <td id="gog-last-success">—</td>
+                <td><button id="open-gog" class="small" type="button">Open GOG</button></td>
+              </tr>
+              <tr>
+                <td>Epic Games Store</td>
+                <td>
+                  <span id="epic-status" class="status-pill">Loading…</span>
+                  <p id="epic-details" class="hint store-details"></p>
+                </td>
+                <td id="epic-last-success">—</td>
+                <td><button id="open-epic" class="small" type="button">Connect</button></td>
+              </tr>
+              <tr>
+                <td>Amazon Games</td>
+                <td>
+                  <span id="amazon-status" class="status-pill">Not connected</span>
+                  <p id="amazon-details" class="hint store-details"></p>
+                </td>
+                <td id="amazon-last-success">—</td>
+                <td><button id="connect-amazon" class="small" type="button">Connect</button></td>
+              </tr>
+              <tr>
+                <td>Battle.net</td>
+                <td>
+                  <span id="battlenet-status" class="status-pill">Not connected</span>
+                  <p id="battlenet-details" class="hint store-details"></p>
+                </td>
+                <td id="battlenet-last-success">—</td>
+                <td><button id="connect-battlenet" class="small" type="button">Connect</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p id="sync-mode" class="sync-status">Loading schedule…</p>
+        <p id="sync-message" class="hint" role="status" aria-live="polite"></p>
+        <p class="hint sync-note">
+          Keep one signed-in source tab open for each connected store. If access expires or a
+          request fails, your last successful library stays saved.
+        </p>
       </section>
 
       <section>

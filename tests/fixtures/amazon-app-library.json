@@ -1,0 +1,13 @@
+{
+  "entitlements": [
+    {
+      "id": "fictional-app-license",
+      "state": "LIVE",
+      "product": {
+        "id": "fictional-app-product",
+        "title": "Fictional App Game",
+        "productLine": "Sonic:Game"
+      }
+    }
+  ]
+}

@@ -7,8 +7,8 @@
   `background.service_worker`. Store durable state in `browser.storage.local`.
 - New Firefox extensions must declare transmitted data through
   `browser_specific_settings.gecko.data_collection_permissions`.
-- Keep required collection at `none`. Request optional `websiteContent` and
-  `authenticationInfo` only from a direct user gesture when enabling an external provider.
+- Keep required collection at none. The current store-tab import has no external pricing or
+  provider-credential collection.
 - Do not load remote code. Bundle all executable JavaScript.
 
 ## Store boundaries
@@ -39,14 +39,6 @@
 - Merge exact normalized titles or explicit aliases only.
 - Use provider IDs as strongest evidence within a store. Never compare Steam IDs to GOG IDs.
 - Surface ambiguous/fuzzy candidates for manual confirmation.
-
-## Prices
-
-- IsThereAnyDeal is an optional adapter, disabled by default. The user must supply an authorized API
-  key and accept its terms; private app use may require contacting the provider.
-- Cache lookups and prices for at least 12 hours. Preserve returned URLs and affiliate parameters.
-- Display store, amount, currency, timestamp, and source. Never relabel an all-store best price as a
-  Steam or GOG price.
 
 ## Performance evidence
 

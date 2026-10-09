@@ -1,0 +1,28 @@
+{
+  "gecko_id": "gaming-library-helper@nikita.local",
+  "strict_min_version": "142.0",
+  "permissions": ["storage", "alarms"],
+  "host_permissions": [
+    "https://store.steampowered.com/*",
+    "https://www.gog.com/*",
+    "https://gog.com/*",
+    "https://embed.gog.com/*"
+  ],
+  "optional_host_permissions": [
+    "https://api.steampowered.com/*",
+    "https://api.steamcmd.net/*",
+    "https://store.epicgames.com/*",
+    "https://www.amazon.com/*",
+    "https://api.amazon.com/*",
+    "https://gaming.amazon.com/*",
+    "https://account.battle.net/*"
+  ],
+  "optional_data": ["authenticationInfo", "websiteContent"],
+  "content_matches": [
+    "https://store.steampowered.com/*",
+    "https://www.gog.com/*",
+    "https://gog.com/*",
+    "https://store.epicgames.com/*",
+    "https://account.battle.net/games"
+  ]
+}

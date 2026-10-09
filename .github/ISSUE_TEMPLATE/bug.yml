@@ -1,0 +1,37 @@
+name: Bug report
+description: Report a reproducible extension problem using sanitized information.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not attach cookies, tokens, authorization URLs, account IDs, CD keys, or personal library exports. Use fictional fixtures.
+  - type: input
+    id: versions
+    attributes:
+      label: Firefox, operating system and extension versions
+    validations:
+      required: true
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Affected area
+      options: [Steam, GOG, Epic, Amazon Games, Battle.net, Matching, Settings, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+      description: Include whether the last successful snapshot survived the error.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Sanitized error or fictional fixture

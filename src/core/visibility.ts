@@ -1,4 +1,4 @@
-import { otherStore, type PageCandidate } from './library';
+import { ownedOnOtherStores, type PageCandidate } from './library';
 import type { CanonicalGame, Settings } from './schema';
 
 export interface VisibilityDecision {
@@ -15,8 +15,7 @@ export function decideVisibility(
 ): VisibilityDecision {
   if (!game) return { hide: false, highlight: false, otherStoreOwned: false };
 
-  const opposite = otherStore(candidate.store);
-  const otherStoreOwned = Boolean(game.storeRefs[opposite]?.owned);
+  const otherStoreOwned = ownedOnOtherStores(game, candidate.store).length > 0;
   const ignored = game.ignored || Boolean(game.storeRefs[candidate.store]?.ignoredAtSource);
 
   if (ignored && settings.hideIgnored) {

@@ -8,7 +8,11 @@ let updateQueue: Promise<unknown> = Promise.resolve();
 
 export async function loadState(): Promise<LibraryState> {
   const stored = await browser.storage.local.get(STORAGE_KEY);
-  return migrateLibraryState(stored[STORAGE_KEY]) ?? createDefaultState();
+  if (stored[STORAGE_KEY] === undefined) return createDefaultState();
+  const migrated = migrateLibraryState(stored[STORAGE_KEY]);
+  if (!migrated)
+    throw new Error('Saved library has an unsupported format. Your existing data is unchanged.');
+  return migrated;
 }
 
 export async function saveState(state: LibraryState): Promise<void> {

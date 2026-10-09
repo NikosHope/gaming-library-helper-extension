@@ -1,6 +1,6 @@
 ---
 name: firefox-extension-development
-description: Build, change, debug, review, or release the Gaming Library Helper Firefox WebExtension. Use for WXT entrypoints, Manifest V3, content scripts, background event pages, Steam or GOG adapters, browser storage, runtime messaging, permissions, privacy declarations, DOM highlighting, price providers, AMO packaging, and extension security work in this repository.
+description: Build, change, debug, review, or release the Gaming Library Helper Firefox WebExtension. Use for WXT entrypoints, Manifest V3, content scripts, background event pages, Steam or GOG adapters, browser storage, runtime messaging, permissions, privacy declarations, DOM highlighting, AMO packaging, and extension security work in this repository.
 ---
 
 # Firefox Extension Development
@@ -42,7 +42,7 @@ the browser and safe around authenticated store sessions.
 - Does the core logic remain browser-independent?
 - Can a compromised page forge a runtime message that changes unrelated state?
 - Can a selector change silently empty a library?
-- Is every network transmission opt-in, documented, cached, and bounded?
+- Is every store request documented, bounded, and limited to the enabled collection flow?
 - Are ownership and performance claims traceable to a store ID or evidence record?
 - Do tests cover failure, migration, duplicate-title, and false-match cases?
 

@@ -46,4 +46,50 @@ describe('decideVisibility', () => {
       decideVisibility(ignored, { store: 'steam', title: 'Hades' }, DEFAULT_SETTINGS),
     ).toMatchObject({ hide: true, reason: 'ignored' });
   });
+
+  it('does not hide or highlight from an unresolved Steam ref with an old canonical title', () => {
+    const uncertain = structuredClone(game);
+    uncertain.storeRefs.steam = {
+      ...uncertain.storeRefs.gog!,
+      store: 'steam',
+      storeId: '10',
+      title: 'Steam app 10',
+      titleStatus: 'unresolved',
+    };
+    expect(
+      decideVisibility(
+        uncertain,
+        { store: 'gog', title: 'Hades' },
+        {
+          ...DEFAULT_SETTINGS,
+          hideOwnedOnOtherStore: true,
+        },
+      ),
+    ).toEqual({ hide: false, highlight: false, otherStoreOwned: false });
+  });
+
+  it.each(['epic', 'amazon', 'battlenet'] as const)(
+    'uses confirmed ownership on %s when browsing Steam',
+    (store) => {
+      const other = structuredClone(game);
+      const ref = other.storeRefs.gog!;
+      delete other.storeRefs.gog;
+      other.storeRefs[store] = { ...ref, store };
+      expect(
+        decideVisibility(
+          other,
+          { store: 'steam', title: 'Hades' },
+          { ...DEFAULT_SETTINGS, hideOwnedOnOtherStore: true },
+        ),
+      ).toMatchObject({ hide: true, otherStoreOwned: true });
+      other.storeRefs[store].titleStatus = 'unresolved';
+      expect(
+        decideVisibility(
+          other,
+          { store: 'steam', title: 'Hades' },
+          { ...DEFAULT_SETTINGS, hideOwnedOnOtherStore: true },
+        ),
+      ).toMatchObject({ hide: false, highlight: false, otherStoreOwned: false });
+    },
+  );
 });

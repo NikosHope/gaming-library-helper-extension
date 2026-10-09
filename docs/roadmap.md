@@ -7,12 +7,12 @@
 - Highlight or hide cross-owned and ignored store cards.
 - Export/import a redacted library backup.
 
-## Phase 2 — reconciliation and prices
+## Phase 2 — library sync and reconciliation
 
 - Manual alias/reconciliation queue for editions and ambiguous titles.
-- Provider permission/consent flow.
-- IsThereAnyDeal shop-specific price adapter after approved API access.
-- Price cache, country/currency settings, stale/error indicators.
+- Epic, Amazon Games and Battle.net collectors are implemented and fixture-tested. Broader Battle.net localization and empty-classic account support remain open.
+- Firefox schedule controls, per-store last-success and attempt status.
+- Request store access only when the related collector is enabled.
 
 ## Phase 3 — performance knowledge
 

@@ -10,9 +10,18 @@ function steamAppId(url: string): string | undefined {
   return /\/app\/(\d+)/u.exec(url)?.[1];
 }
 
+function storeText(element: Element | null): string | undefined {
+  if (!element) return undefined;
+  if (!element.querySelector('.glh-ownership-badge'))
+    return element.textContent?.trim() || undefined;
+  const copy = element.cloneNode(true) as Element;
+  copy.querySelectorAll('.glh-ownership-badge').forEach((badge) => badge.remove());
+  return copy.textContent?.trim() || undefined;
+}
+
 function textFrom(root: Element, selectors: string[]): string | undefined {
   for (const selector of selectors) {
-    const text = root.querySelector<HTMLElement>(selector)?.textContent?.trim();
+    const text = storeText(root.querySelector<HTMLElement>(selector));
     if (text) return text;
   }
   const imageAlt = root.querySelector<HTMLImageElement>('img[alt]')?.alt.trim();
@@ -32,11 +41,12 @@ export function collectSteamCandidates(document: Document): DomGameCandidate[] {
   const candidates: DomGameCandidate[] = [];
   const detailId = steamAppId(location.href);
   const detailTitle = document.querySelector<HTMLElement>('.apphub_AppName');
-  if (detailId && detailTitle?.textContent?.trim()) {
+  const cleanDetailTitle = storeText(detailTitle);
+  if (detailId && detailTitle && cleanDetailTitle) {
     candidates.push({
       store: 'steam',
       storeId: detailId,
-      title: detailTitle.textContent.trim(),
+      title: cleanDetailTitle,
       element: detailTitle.closest<HTMLElement>('.apphub_AppName') ?? detailTitle,
       titleElement: detailTitle,
       isDetailPage: true,
@@ -85,10 +95,11 @@ export function collectGogCandidates(document: Document): DomGameCandidate[] {
   const isDetail =
     /^\/[^/]*game\//u.test(location.pathname) || location.pathname.includes('/game/');
   const detailTitle = document.querySelector<HTMLElement>('h1');
-  if (isDetail && detailTitle?.textContent?.trim()) {
+  const cleanDetailTitle = storeText(detailTitle);
+  if (isDetail && detailTitle && cleanDetailTitle) {
     candidates.push({
       store: 'gog',
-      title: detailTitle.textContent.trim(),
+      title: cleanDetailTitle,
       element: detailTitle,
       titleElement: detailTitle,
       isDetailPage: true,

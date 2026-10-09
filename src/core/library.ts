@@ -1,7 +1,9 @@
 import { isMatchableTitle, normalizeTitle } from './normalize';
+import { classifyRef, isPrimaryRef, reviewedKind, separateProductKinds } from './products';
 import {
   LibraryStateSchema,
   StoreSnapshotSchema,
+  StoreSchema,
   type CanonicalGame,
   type LibraryState,
   type Store,
@@ -35,13 +37,23 @@ export function replaceStoreSnapshot(
   snapshotInput: StoreSnapshot,
 ): SnapshotMergeResult {
   const snapshot = StoreSnapshotSchema.parse(snapshotInput);
+  const previousTime = current.snapshots[snapshot.store]?.syncedAt;
+  if (previousTime && Date.parse(snapshot.syncedAt) < Date.parse(previousTime)) {
+    throw new Error(
+      'A newer snapshot has already been saved. Retry; the previous library is unchanged.',
+    );
+  }
   const state = LibraryStateSchema.parse(structuredClone(current));
   const previousByStoreId = new Map<string, string>();
+  const previousRefs = new Map<string, StoreGameRef>();
   const seenStoreIds = new Set<string>();
 
   for (const game of state.games) {
     const previous = game.storeRefs[snapshot.store];
-    if (previous) previousByStoreId.set(previous.storeId, game.id);
+    if (previous) {
+      previousByStoreId.set(previous.storeId, game.id);
+      previousRefs.set(previous.storeId, previous);
+    }
     delete game.storeRefs[snapshot.store];
   }
 
@@ -49,7 +61,8 @@ export function replaceStoreSnapshot(
   let added = 0;
   let matched = 0;
 
-  for (const ref of snapshot.refs) {
+  for (const inputRef of snapshot.refs) {
+    const ref = classifyRef(inputRef);
     if (ref.store !== snapshot.store) {
       throw new Error(`Snapshot for ${snapshot.store} contains a ${ref.store} reference`);
     }
@@ -61,18 +74,22 @@ export function replaceStoreSnapshot(
     let target = byId.get(previousByStoreId.get(ref.storeId) ?? '');
     const normalized = normalizeTitle(ref.title);
 
-    if (!target && ref.titleStatus === 'resolved' && isMatchableTitle(ref.title)) {
+    if (!target && isPrimaryRef(ref) && isMatchableTitle(ref.title)) {
       target = state.games.find(
         (game) =>
-          !game.storeRefs[snapshot.store] && matchKeys(game).some((key) => key === normalized),
+          !game.storeRefs[snapshot.store] &&
+          Object.values(game.storeRefs).some(isPrimaryRef) &&
+          matchKeys(game).some((key) => key === normalized),
       );
     }
 
     if (target) {
       target.storeRefs[snapshot.store] = ref;
+      const previousRef = previousRefs.get(ref.storeId);
       if (
-        target.displayTitle.startsWith('Steam app ') ||
-        target.displayTitle.startsWith('GOG game ')
+        previousRef?.titleStatus === 'unresolved' &&
+        ref.titleStatus === 'resolved' &&
+        target.displayTitle === previousRef.title
       ) {
         target.displayTitle = ref.title;
         target.normalizedTitle = normalized;
@@ -108,7 +125,7 @@ export function replaceStoreSnapshot(
     unresolvedCount: snapshot.refs.filter((ref) => ref.titleStatus === 'unresolved').length,
   };
 
-  return { state: LibraryStateSchema.parse(state), added, matched, removed };
+  return { state: LibraryStateSchema.parse(separateProductKinds(state)), added, matched, removed };
 }
 
 export interface PageCandidate {
@@ -126,19 +143,29 @@ export function findGameForPage(
       (game) => game.storeRefs[candidate.store]?.storeId === candidate.storeId,
     );
     if (byId) return byId;
+    const kind = reviewedKind(candidate.store, candidate.storeId);
+    if (kind && kind !== 'game') return undefined;
   }
 
   if (!isMatchableTitle(candidate.title)) return undefined;
   const normalized = normalizeTitle(candidate.title);
-  return state.games.find((game) => matchKeys(game).includes(normalized));
+  return state.games.find(
+    (game) =>
+      Object.values(game.storeRefs).some(isPrimaryRef) && matchKeys(game).includes(normalized),
+  );
 }
 
-export function otherStore(store: Store): Store {
-  return store === 'steam' ? 'gog' : 'steam';
+export function ownedOnOtherStores(game: CanonicalGame, store: Store): Store[] {
+  return StoreSchema.options.filter(
+    (other) =>
+      other !== store && game.storeRefs[other]?.owned && isPrimaryRef(game.storeRefs[other]),
+  );
 }
 
 export function countOwned(state: LibraryState, store: Store): number {
-  return state.games.filter((game) => game.storeRefs[store]?.owned).length;
+  return state.games.filter(
+    (game) => game.storeRefs[store]?.owned && isPrimaryRef(game.storeRefs[store]),
+  ).length;
 }
 
 export function createStoreRef(store: Store, input: Omit<StoreGameRef, 'store'>): StoreGameRef {

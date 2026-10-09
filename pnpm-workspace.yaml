@@ -1,3 +1,12 @@
 allowBuilds:
   esbuild: true
   spawn-sync: false
+
+# Minimal patched versions for upstream tool dependencies. Keep the audit strict.
+# See docs/development.md for why these overrides exist and when to remove them.
+overrides:
+  'shell-quote@<1.11.0': 1.11.0
+  'tmp@<0.2.7': 0.2.7
+  'adm-zip@<0.6.1': 0.6.1
+  'uuid@<11.1.1': 11.1.1
+  'esbuild@<0.28.1': 0.28.1
