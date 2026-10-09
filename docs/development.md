@@ -1,6 +1,6 @@
 # Development controls
 
-Use Node.js 24 LTS and pnpm 11.19.0. CI verifies Node.js 22 and 24 using the frozen lockfile.
+Use Node.js 24 LTS and pnpm 11.19.0. CI verifies Node.js 22 and 24 on Ubuntu 24.04 using the frozen lockfile.
 `pnpm install` permits only the reviewed esbuild dependency build script; `spawn-sync` is disabled.
 
 | Control                           | Enforcement                                                                              |
