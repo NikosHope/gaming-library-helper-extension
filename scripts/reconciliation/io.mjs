@@ -1,4 +1,5 @@
-import { mkdir, readFile, writeFile, rename, rm, stat } from 'node:fs/promises';
+import { mkdir, open, writeFile, rename, rm, stat } from 'node:fs/promises';
+import { constants } from 'node:fs';
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
@@ -8,13 +9,30 @@ export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..'
 export const privateRoot = join(repoRoot, 'artifacts/local/reconciliation/runtime');
 export const MAX_DOCUMENT_BYTES = 32 * 1024 * 1024;
 export async function readJson(path, optional = false) {
+  let file;
   try {
-    if ((await stat(path)).size > MAX_DOCUMENT_BYTES)
+    // Check and read the same descriptor; a pathname replacement cannot redirect the read.
+    file = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
+    const metadata = await file.stat();
+    if (!metadata.isFile() || metadata.size > MAX_DOCUMENT_BYTES)
       throw new Error('Local document exceeds the size limit');
-    return JSON.parse(await readFile(path, 'utf8'));
+    const chunks = [];
+    let total = 0;
+    while (true) {
+      // Also bound a file which grows after fstat. Read at most one byte beyond the limit.
+      const chunk = Buffer.alloc(Math.min(64 * 1024, MAX_DOCUMENT_BYTES - total + 1));
+      const { bytesRead } = await file.read(chunk, 0, chunk.length, null);
+      if (!bytesRead) break;
+      total += bytesRead;
+      if (total > MAX_DOCUMENT_BYTES) throw new Error('Local document exceeds the size limit');
+      chunks.push(chunk.subarray(0, bytesRead));
+    }
+    return JSON.parse(Buffer.concat(chunks, total).toString('utf8'));
   } catch (error) {
     if (optional && error.code === 'ENOENT') return undefined;
     throw error;
+  } finally {
+    await file?.close();
   }
 }
 export async function atomicWrite(path, value) {

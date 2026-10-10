@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, readFile, mkdir, utimes } from 'node:fs/promises';
+import { mkdtemp, rm, readFile, mkdir, utimes, open, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { PassThrough } from 'node:stream';
@@ -10,7 +10,7 @@ import { createDefaultState } from '../../src/core/defaults.ts';
 import { replaceStoreSnapshot } from '../../src/core/library.ts';
 import { createInputSnapshot, contentHash } from '../../src/core/reconciliation.ts';
 import { CatalogRecordSchema, CollectedSchema } from '../../src/core/reconciliation-schema.ts';
-import { publishSnapshot, atomicWrite, readJson, withLock } from './io.mjs';
+import { publishSnapshot, atomicWrite, readJson, withLock, MAX_DOCUMENT_BYTES } from './io.mjs';
 import { createNativeSession, encodeFrame, runHost } from './native-host.mjs';
 import { collect, validate, approve } from './pipeline.mjs';
 import { parsePicsApp, parsePicsPackage, collectPics } from './pics.mjs';
@@ -773,3 +773,24 @@ test('network failure errors exclude URL credentials and response content', asyn
   assert.deepEqual(catalogs.configured, { igdb: false, rawg: false });
   await assert.rejects(catalogs.get({ provider: 'igdb', id: 1 }), /not configured/u);
 });
+
+test('local JSON reads reject symlinks and oversized documents while preserving saved data', () =>
+  local(async (root) => {
+    const original = join(root, 'saved.json');
+    await atomicWrite(original, { value: 'fictional preserved snapshot' });
+    assert.deepEqual(await readJson(original), { value: 'fictional preserved snapshot' });
+    assert.equal(await readJson(join(root, 'missing.json'), true), undefined);
+    const link = join(root, 'swapped.json');
+    await symlink(original, link);
+    await assert.rejects(readJson(link), { code: 'ELOOP' });
+    const oversized = join(root, 'oversized.json');
+    const file = await open(oversized, 'wx');
+    try {
+      await file.truncate(MAX_DOCUMENT_BYTES + 1);
+    } finally {
+      await file.close();
+    }
+    await assert.rejects(readJson(oversized), /size limit/u);
+    await assert.rejects(readJson(root), /size limit/u);
+    assert.deepEqual(await readJson(original), { value: 'fictional preserved snapshot' });
+  }));
