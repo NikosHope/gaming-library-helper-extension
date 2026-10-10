@@ -47,4 +47,19 @@ describe('library storage preservation', () => {
     expect(await updateState((state) => state)).toEqual(current);
     expect(mock.set).toHaveBeenCalledWith({ 'gaming-library-helper/state': current });
   });
+
+  it('saves a sanitized v5 migration backup before overwriting the state', async () => {
+    const current = createDefaultState();
+    current.devices[0]!.notes = 'Keep this note';
+    const { registry: _registry, ...fields } = current;
+    expect(_registry.records).toEqual([]);
+    mock.value = { ...fields, version: 5, accidentalPrivateKey: 'synthetic-private-field' };
+    expect(await updateState((state) => state)).toEqual(current);
+    const [backupWrite, stateWrite] = mock.set.mock.calls;
+    expect(backupWrite?.[0]).toMatchObject({
+      'gaming-library-helper/migration-backup-v5': { version: 1, state: current },
+    });
+    expect(JSON.stringify(backupWrite)).not.toContain('synthetic-private-field');
+    expect(stateWrite?.[0]).toEqual({ 'gaming-library-helper/state': current });
+  });
 });

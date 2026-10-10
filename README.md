@@ -11,13 +11,21 @@ cross-owned and ignored games while you browse Steam and GOG.
 **Development preview.** There is no published, Mozilla-signed release yet. Store endpoints and
 markup can change. See [provider support and limitations](docs/library-sync.md).
 
+## Release builds
+
+[GitHub releases](https://github.com/NikosHope/gaming-library-helper-extension/releases) provide
+checked Firefox MV3 and reviewer-source ZIPs, checksums and the exact source commit. Version 0.2.0
+is an **unsigned prerelease**: use `about:debugging` for temporary developer installation. Normal
+Firefox installation requires Mozilla signing. See [release acceptance](docs/releases/v0.2.0.md).
+
 ## Features
 
-- Conservative matching: exact normalized titles and explicit aliases; ambiguous matches need review.
+- Conservative catalog matching: verified IGDB/RAWG IDs; title candidates require human review.
 - Atomic imports: an incomplete or failed sync keeps your last successful snapshot.
 - Local storage, no analytics, no telemetry, and optional provider access requested when enabled.
 - Disabled-by-default automatic sync while Firefox is running, with per-provider receipts.
 - Separate games, DLC, tools and unknown products. Catalog metadata never creates ownership.
+- Optional local Native Messaging runner for PICS/catalog enrichment and agent-assisted reconciliation.
 - Device-specific performance records that distinguish native builds, translation, base FPS,
   generated FPS, frame pacing, upscaling and VRR.
 
@@ -51,6 +59,8 @@ and secrets; pre-push runs `pnpm verify`. GitHub independently requires CI check
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md), [development controls](docs/development.md),
 [architecture](docs/architecture.md) and [release procedure](docs/releasing.md).
+See [local reconciliation workflow](docs/reconciliation.md) for Cursor/ChatGPT, Keychain setup,
+versioned exchange and the prepared scheduling prompt.
 
 ## Security and licensing
 

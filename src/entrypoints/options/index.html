@@ -107,27 +107,109 @@
         </p>
       </section>
 
-      <section>
+      <section aria-label="Local reconciliation">
+        <div class="section-heading">
+          <div>
+            <h2>Reconciliation</h2>
+            <p class="hint">
+              Local scripts enrich your metadata. Only verified identities enter Library.
+            </p>
+          </div>
+          <button id="connect-runner" type="button" disabled>Connect local runner</button>
+        </div>
+        <p id="runner-status" class="hint" role="status" aria-live="polite">
+          Loading local runner status…
+        </p>
+        <div class="sync-controls">
+          <button id="refresh-registry" type="button" class="small" disabled>
+            Refresh registry
+          </button>
+          <span class="hint">IGDB first · RAWG fallback · ambiguous identities require review</span>
+        </div>
+        <p id="runner-message" class="hint" role="status" aria-live="polite"></p>
+      </section>
+
+      <section aria-label="Catalog library">
         <div class="section-heading">
           <div>
             <h2>Library</h2>
             <p id="summary" class="hint"></p>
           </div>
-          <input id="search" type="search" placeholder="Filter titles…" />
+          <input
+            id="search"
+            type="search"
+            aria-label="Search library"
+            placeholder="Search titles, stores or IDs…"
+          />
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Game</th>
-                <th>Steam</th>
-                <th>GOG</th>
-                <th>Ignored</th>
-              </tr>
-            </thead>
-            <tbody id="games"></tbody>
-          </table>
+        <div class="library-tabs" role="tablist" aria-label="Library categories">
+          <button
+            id="tab-games"
+            class="small active"
+            type="button"
+            role="tab"
+            aria-controls="panel-games"
+            aria-selected="true"
+          >
+            Games
+          </button>
+          <button
+            id="tab-unknown"
+            class="small"
+            type="button"
+            role="tab"
+            aria-controls="panel-unknown"
+            aria-selected="false"
+            tabindex="-1"
+          >
+            Unknown records
+          </button>
+          <button
+            id="tab-technical"
+            class="small"
+            type="button"
+            role="tab"
+            aria-controls="panel-technical"
+            aria-selected="false"
+            tabindex="-1"
+          >
+            Technical records
+          </button>
         </div>
+        <div
+          id="panel-games"
+          class="table-wrap catalog-table"
+          role="tabpanel"
+          aria-labelledby="tab-games"
+        ></div>
+        <div
+          id="panel-unknown"
+          class="table-wrap catalog-table"
+          role="tabpanel"
+          aria-labelledby="tab-unknown"
+          hidden
+        ></div>
+        <div
+          id="panel-technical"
+          class="table-wrap catalog-table"
+          role="tabpanel"
+          aria-labelledby="tab-technical"
+          hidden
+        ></div>
+        <div class="pagination">
+          <button id="previous-page" class="small" type="button" disabled>Previous</button>
+          <span id="page-status" class="hint" role="status"></span>
+          <button id="next-page" class="small" type="button" disabled>Next</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>Local backup</h2>
+        <p class="hint">Save original IDs, annotations and the accepted catalog on this device.</p>
+        <button id="download-backup" class="small" type="button" disabled>
+          Download library backup
+        </button>
+        <p id="backup-message" class="hint" role="status"></p>
       </section>
 
       <section>
@@ -138,6 +220,11 @@
           source port, compatibility layer, VM, or streaming. CPU translation, graphics translation,
           render resolution, upscaling, in-game or Vulkan-layer frame generation, base FPS,
           presented FPS, and VRR remain separate evidence.
+        </p>
+        <p class="hint">
+          Catalog sources:
+          <a href="https://www.igdb.com/" target="_blank" rel="noopener noreferrer">IGDB</a> ·
+          <a href="https://rawg.io/" target="_blank" rel="noopener noreferrer">RAWG</a>.
         </p>
       </section>
     </main>

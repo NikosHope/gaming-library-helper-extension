@@ -217,3 +217,78 @@ button:disabled {
 .sync-table table {
   min-width: 640px;
 }
+
+[hidden] {
+  display: none !important;
+}
+.library-tabs,
+.pagination {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 16px;
+}
+.library-tabs button {
+  border: 1px solid #3b5d75;
+  color: #a7bdcf;
+  background: #11283a;
+}
+.library-tabs button.active {
+  background: #70d6ff;
+  color: #062033;
+}
+.catalog-table table {
+  min-width: 650px;
+  table-layout: fixed;
+}
+.catalog-table th:first-child {
+  width: 30%;
+}
+.catalog-table td {
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.catalog-table a {
+  color: #70d6ff;
+  display: block;
+  margin: 6px 0;
+}
+.catalog-table button {
+  display: block;
+  margin-top: 9px;
+}
+.catalog-table details {
+  margin: 6px 0 12px;
+}
+.catalog-table summary {
+  cursor: pointer;
+  line-height: 1.5;
+}
+.catalog-table p {
+  margin: 7px 0;
+}
+.product-label {
+  font-size: 12px;
+  font-weight: 750;
+}
+.product-detail {
+  border-top: 1px solid #29465c;
+  margin-top: 10px;
+  padding-top: 5px;
+}
+.os-label {
+  display: block;
+  font-size: 12px;
+  color: #a7bdcf;
+  line-height: 1.6;
+}
+.local-notes {
+  white-space: pre-wrap;
+}
+.empty-state {
+  padding: 15px;
+}
+.pagination .hint {
+  margin: 0;
+}

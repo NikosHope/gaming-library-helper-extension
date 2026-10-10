@@ -1,4 +1,7 @@
-import { isMatchableTitle, normalizeTitle } from './normalize';
+import { normalizeTitle } from './normalize';
+import { catalogKey, editionRoot, projectLibrary } from './reconciliation';
+import { storeUrlKey } from './store-url';
+import { productIgnoreIndex } from './annotations';
 import { classifyRef, isPrimaryRef, reviewedKind, separateProductKinds } from './products';
 import {
   LibraryStateSchema,
@@ -26,10 +29,6 @@ function hasUserAnnotations(game: CanonicalGame): boolean {
     game.launchPaths.length > 0 ||
     game.performance.length > 0
   );
-}
-
-function matchKeys(game: CanonicalGame): string[] {
-  return [game.normalizedTitle, ...game.aliases.map(normalizeTitle)].filter(Boolean);
 }
 
 export function replaceStoreSnapshot(
@@ -71,17 +70,8 @@ export function replaceStoreSnapshot(
     }
     seenStoreIds.add(ref.storeId);
 
-    let target = byId.get(previousByStoreId.get(ref.storeId) ?? '');
+    const target = byId.get(previousByStoreId.get(ref.storeId) ?? '');
     const normalized = normalizeTitle(ref.title);
-
-    if (!target && isPrimaryRef(ref) && isMatchableTitle(ref.title)) {
-      target = state.games.find(
-        (game) =>
-          !game.storeRefs[snapshot.store] &&
-          Object.values(game.storeRefs).some(isPrimaryRef) &&
-          matchKeys(game).some((key) => key === normalized),
-      );
-    }
 
     if (target) {
       target.storeRefs[snapshot.store] = ref;
@@ -132,27 +122,139 @@ export interface PageCandidate {
   store: Store;
   storeId?: string;
   title: string;
+  url?: string;
 }
 
+/** Build once per page refresh; no title search can assert cross-store ownership. */
+export function createPageLibrary(state: LibraryState): Map<string, CanonicalGame> {
+  const ignored = productIgnoreIndex(state);
+  const index = new Map<string, CanonicalGame>();
+  const refs = new Map<string, StoreGameRef>();
+  const sources = new Map(state.games.map((game) => [game.id, game]));
+  for (const game of state.games)
+    for (const ref of Object.values(game.storeRefs)) {
+      const key = `${ref.store}:${ref.storeId}`;
+      refs.set(key, ref);
+      index.set(key, {
+        ...game,
+        ignored: ignored.get(key) ?? false,
+        storeRefs: { [ref.store]: ref },
+      });
+      const urlKey = storeUrlKey(ref.url);
+      if (urlKey?.startsWith(`${ref.store}:`)) {
+        index.set(`url:${urlKey}`, index.get(key)!);
+        refs.set(`url:${urlKey}`, ref);
+      }
+    }
+  const recordIndex = new Map(
+    state.registry.records.map((record) => [catalogKey(record.identity), record]),
+  );
+  // Candidate metadata can be inspected without changing browsing identity before acceptance.
+  const acceptedRecords = new Set<string>();
+  const pendingRecords = state.registry.matches.map((match) => catalogKey(match.catalog));
+  while (pendingRecords.length) {
+    const key = pendingRecords.pop()!;
+    if (acceptedRecords.has(key)) continue;
+    acceptedRecords.add(key);
+    const record = recordIndex.get(key);
+    for (const parent of [record?.versionParent, record?.parent])
+      if (parent) pendingRecords.push(catalogKey(parent));
+  }
+  const matches = new Map<string, typeof state.registry.matches>();
+  for (const match of state.registry.matches) {
+    const key = `${match.store}:${match.storeId}`;
+    const list = matches.get(key) ?? [];
+    list.push(match);
+    matches.set(key, list);
+  }
+  const rootGroups = new Map<string, Set<CanonicalGame>>();
+  const candidates = new Map<string, Set<CanonicalGame>>();
+  const add = (map: Map<string, Set<CanonicalGame>>, key: string, game: CanonicalGame) => {
+    const values = map.get(key) ?? new Set<CanonicalGame>();
+    values.add(game);
+    map.set(key, values);
+  };
+  const projection = projectLibrary(state);
+  const confirmed = new Set(
+    projection.games.flatMap((game) =>
+      game.products.map((item) => `${item.footprint.store}:${item.footprint.storeId}`),
+    ),
+  );
+  for (const game of projection.games) {
+    const source = sources.get(game.sourceRecordIds[0]!);
+    if (!source) continue;
+    const storeRefs: CanonicalGame['storeRefs'] = {};
+    for (const item of game.products) {
+      const key = `${item.footprint.store}:${item.footprint.storeId}`;
+      const ref = refs.get(key);
+      if (ref && !storeRefs[ref.store])
+        storeRefs[ref.store] = {
+          ...ref,
+          titleStatus: 'resolved',
+          classification: {
+            kind: 'game',
+            source: 'reviewed-rule',
+            confidence: 'primary',
+            evidenceUrls: [item.record!.url],
+          },
+        };
+    }
+    const view = {
+      ...source,
+      displayTitle: game.title,
+      ignored: game.products.some((item) =>
+        ignored.get(`${item.footprint.store}:${item.footprint.storeId}`),
+      ),
+      storeRefs,
+    };
+    add(rootGroups, game.key, view);
+    for (const product of game.products) {
+      const key = `${product.footprint.store}:${product.footprint.storeId}`;
+      add(candidates, key, view);
+      const urlKey = storeUrlKey(refs.get(key)?.url);
+      if (urlKey?.startsWith(`${product.footprint.store}:`)) {
+        add(candidates, `url:${urlKey}`, view);
+        confirmed.add(`url:${urlKey}`);
+      }
+      for (const match of matches.get(key) ?? []) {
+        const root = editionRoot(match.catalog, state.registry, recordIndex);
+        if (root) add(rootGroups, catalogKey(root.identity), view);
+      }
+    }
+  }
+  for (const record of state.registry.records) {
+    if (!acceptedRecords.has(catalogKey(record.identity))) continue;
+    const root = editionRoot(record.identity, state.registry, recordIndex);
+    if (!root) continue;
+    for (const game of rootGroups.get(catalogKey(root.identity)) ?? [])
+      for (const ref of record.externalRefs) {
+        add(candidates, `${ref.store}:${ref.storeId}`, game);
+        const urlKey = storeUrlKey(ref.url);
+        if (urlKey?.startsWith(`${ref.store}:`)) add(candidates, `url:${urlKey}`, game);
+      }
+  }
+  for (const [key, games] of candidates)
+    if (games.size === 1) {
+      const own = refs.get(key);
+      // A source product classified outside Library cannot gain identity via neighbours.
+      if (own && !confirmed.has(key)) continue;
+      index.set(key, [...games][0]!);
+    }
+  return index;
+}
 export function findGameForPage(
   state: LibraryState,
   candidate: PageCandidate,
+  index = createPageLibrary(state),
 ): CanonicalGame | undefined {
-  if (candidate.storeId) {
-    const byId = state.games.find(
-      (game) => game.storeRefs[candidate.store]?.storeId === candidate.storeId,
-    );
-    if (byId) return byId;
-    const kind = reviewedKind(candidate.store, candidate.storeId);
-    if (kind && kind !== 'game') return undefined;
-  }
-
-  if (!isMatchableTitle(candidate.title)) return undefined;
-  const normalized = normalizeTitle(candidate.title);
-  return state.games.find(
-    (game) =>
-      Object.values(game.storeRefs).some(isPrimaryRef) && matchKeys(game).includes(normalized),
-  );
+  if (!candidate.storeId && !candidate.url) return undefined;
+  const kind = candidate.storeId ? reviewedKind(candidate.store, candidate.storeId) : undefined;
+  if (kind && kind !== 'game') return undefined;
+  const byId = candidate.storeId ? index.get(`${candidate.store}:${candidate.storeId}`) : undefined;
+  const urlKey = storeUrlKey(candidate.url);
+  const byUrl = urlKey?.startsWith(`${candidate.store}:`) ? index.get(`url:${urlKey}`) : undefined;
+  if (byId && byUrl && byId !== byUrl) return undefined;
+  return byId ?? byUrl;
 }
 
 export function ownedOnOtherStores(game: CanonicalGame, store: Store): Store[] {

@@ -1,6 +1,7 @@
 import { z } from 'zod/v3';
 import { LibraryStateSchema, type LibraryState } from './schema';
 import { migrateLibraryState } from './migration';
+import { validateRegistry } from './reconciliation';
 
 const BackupSchema = z
   .object({ format: z.literal('gaming-library-helper'), version: z.literal(1), state: z.unknown() })
@@ -19,6 +20,7 @@ export function importLibrary(json: string): LibraryState {
   const backup = BackupSchema.parse(JSON.parse(json) as unknown);
   const state = migrateLibraryState(backup.state);
   if (!state) throw new Error('Unsupported library backup. Existing data must be preserved.');
+  validateRegistry(state.registry);
   const ids = new Set<string>();
   const refs = new Set<string>();
   for (const game of state.games) {

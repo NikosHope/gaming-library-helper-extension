@@ -1,6 +1,6 @@
 import { browser } from 'wxt/browser';
 import { z } from 'zod/v3';
-import { countOwned } from '../../core/library';
+import { librarySummary } from '../../ui/catalog-library';
 import { LibraryStateSchema, type LibraryState } from '../../core/schema';
 
 const SyncResultSchema = z.object({
@@ -21,11 +21,12 @@ const byId = <T extends HTMLElement>(id: string): T => {
 let state: LibraryState;
 
 function render(): void {
-  byId('steam-count').textContent = String(countOwned(state, 'steam'));
-  byId('gog-count').textContent = String(countOwned(state, 'gog'));
-  byId('shared-count').textContent = String(
-    state.games.filter((game) => game.storeRefs.steam?.owned && game.storeRefs.gog?.owned).length,
-  );
+  const counts = librarySummary(state);
+  byId('steam-count').textContent = String(counts.stores.steam);
+  byId('gog-count').textContent = String(counts.stores.gog);
+  byId('shared-count').textContent = String(counts.shared);
+  byId('catalog-note').textContent =
+    `${counts.games} verified games · ${counts.unknown} Unknown · ${counts.technical} technical · ${counts.products} saved products`;
   byId<HTMLInputElement>('highlight-owned').checked = state.settings.highlightOwnedOnOtherStore;
   byId<HTMLInputElement>('hide-owned').checked = state.settings.hideOwnedOnOtherStore;
   byId<HTMLInputElement>('hide-ignored').checked = state.settings.hideIgnored;
@@ -60,7 +61,7 @@ async function syncActiveTab(): Promise<void> {
       }),
     );
     await refresh();
-    status.textContent = `Synced ${result.gameCount} games. Added ${result.summary.added}, matched ${result.summary.matched}.`;
+    status.textContent = `Synced ${result.gameCount} source products. Added ${result.summary.added}, matched ${result.summary.matched}.`;
   } catch (error) {
     status.textContent = error instanceof Error ? error.message : 'Sync failed';
   } finally {

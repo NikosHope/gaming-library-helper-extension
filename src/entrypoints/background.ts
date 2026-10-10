@@ -14,6 +14,7 @@ import {
   STEAM_PUBLIC_METADATA_ORIGIN,
 } from '../adapters/steam-public-metadata';
 import { replaceStoreSnapshot } from '../core/library';
+import { setIgnoredRecords, setIgnoredProducts } from '../core/annotations';
 import { RuntimeRequestSchema } from '../core/messages';
 import { loadState, updateState } from '../core/storage';
 import {
@@ -30,6 +31,14 @@ import {
 import { firefoxPermissions, firefoxTabUpdates } from '../background/firefox-api';
 import { loadSteamMetadata, importSteamMetadata } from '../background/steam-metadata';
 import { cachedSteamMetadataItem } from '../core/steam-metadata';
+import {
+  bridgeStatus,
+  configureBridge,
+  refreshBridge,
+  restoreBridgeAlarm,
+  approveBridgeReview,
+  RECONCILIATION_ALARM,
+} from '../background/reconciliation';
 
 export default defineBackground(() => {
   firefoxTabUpdates.addListener(
@@ -42,12 +51,30 @@ export default defineBackground(() => {
   void (async () => {
     await updateState((state) => state);
     await restoreSyncAlarm();
+    await restoreBridgeAlarm();
+    await refreshBridge();
   })().catch(() => undefined);
   browser.runtime.onStartup.addListener(() => {
     void restoreSyncAlarm().catch(() => undefined);
+    void restoreBridgeAlarm()
+      .then(refreshBridge)
+      .catch(() => undefined);
   });
   browser.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === SYNC_ALARM) void runScheduledSync().catch(() => undefined);
+    if (alarm.name === RECONCILIATION_ALARM) void refreshBridge().catch(() => undefined);
+  });
+  browser.permissions.onRemoved.addListener((permissions) => {
+    if (permissions.permissions?.includes('nativeMessaging'))
+      void configureBridge(false).catch(() => undefined);
+  });
+  let reconciliationTimer: ReturnType<typeof setTimeout> | undefined;
+  browser.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'local' || !changes['gaming-library-helper/state']) return;
+    clearTimeout(reconciliationTimer);
+    reconciliationTimer = setTimeout(() => {
+      void refreshBridge().catch(() => undefined);
+    }, 1000);
   });
 
   // Firefox runtime listeners intentionally return a Promise for async responses.
@@ -58,6 +85,24 @@ export default defineBackground(() => {
     const request = parsed.data;
 
     switch (request.type) {
+      case 'reconciliation:status':
+        requireExtensionPage(sender, browser.runtime.getURL('/'));
+        return bridgeStatus();
+      case 'library:setIgnoredMany':
+        requireExtensionPage(sender, browser.runtime.getURL('/'));
+        return updateState((state) => setIgnoredRecords(state, request.gameIds, request.ignored));
+      case 'library:setProductsIgnored':
+        requireExtensionPage(sender, browser.runtime.getURL('/'));
+        return updateState((state) => setIgnoredProducts(state, request.products, request.ignored));
+      case 'reconciliation:configure':
+        requireExtensionPage(sender, browser.runtime.getURL('/'));
+        return configureBridge(request.enabled);
+      case 'reconciliation:refresh':
+        requireExtensionPage(sender, browser.runtime.getURL('/'));
+        return refreshBridge();
+      case 'reconciliation:approve':
+        requireExtensionPage(sender, browser.runtime.getURL('/'));
+        return approveBridgeReview(request.proposalId, request.independence);
       case 'steam:importMetadata':
         requireExtensionPage(sender, browser.runtime.getURL('/'));
         return importSteamMetadata(request.snapshot);

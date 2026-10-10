@@ -32,6 +32,7 @@ export default defineConfig({
     name: 'Gaming Library Helper',
     description: 'Shows Steam and GOG ownership, ignored games, and device performance notes.',
     permissions: ['storage', 'alarms'],
+    optional_permissions: ['nativeMessaging'],
     optional_host_permissions: [
       'https://api.steampowered.com/*',
       'https://api.steamcmd.net/*',

@@ -39,7 +39,7 @@ describe('migrateLibraryState', () => {
     };
 
     const migrated = migrateLibraryState(legacy);
-    expect(migrated?.version).toBe(5);
+    expect(migrated?.version).toBe(6);
     expect(migrated?.games[0]?.launchPaths[0]).toMatchObject({
       platform: 'steamos',
       executionKind: 'compatibility-layer',
@@ -116,6 +116,31 @@ describe('migrateLibraryState', () => {
   it('accepts an already-current state without changing it', () => {
     const current = createDefaultState();
     expect(migrateLibraryState(current)).toEqual(current);
+  });
+
+  it('preserves every v5 UUID, footprint and annotation without reclassification', () => {
+    const state = replaceStoreSnapshot(createDefaultState(), {
+      store: 'steam',
+      syncedAt: '2026-10-09T10:00:00.000Z',
+      refs: [
+        {
+          store: 'steam',
+          storeId: '3575160',
+          title: 'Steam App 3575160',
+          titleStatus: 'unresolved',
+          owned: true,
+          ignoredAtSource: false,
+          importedAt: '2026-10-09T10:00:00.000Z',
+        },
+      ],
+    }).state;
+    state.games[0]!.notes = 'Private annotation';
+    state.games[0]!.ignored = true;
+    const { registry: _registry, ...fields } = state;
+    expect(_registry.matches).toEqual([]);
+    const legacy = { ...fields, version: 5 };
+    expect(migrateLibraryState(legacy)).toEqual(state);
+    expect(legacy).not.toHaveProperty('registry');
   });
 
   it.each([

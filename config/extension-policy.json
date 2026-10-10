@@ -2,6 +2,7 @@
   "gecko_id": "gaming-library-helper@nikita.local",
   "strict_min_version": "142.0",
   "permissions": ["storage", "alarms"],
+  "optional_permissions": ["nativeMessaging"],
   "host_permissions": [
     "https://store.steampowered.com/*",
     "https://www.gog.com/*",

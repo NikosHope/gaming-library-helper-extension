@@ -8,7 +8,7 @@ import {
   type DomGameCandidate,
 } from '../adapters/page-dom';
 import { captureSteamSnapshot } from '../adapters/steam';
-import { findGameForPage, ownedOnOtherStores } from '../core/library';
+import { createPageLibrary, findGameForPage, ownedOnOtherStores } from '../core/library';
 import { CaptureRequestSchema } from '../core/messages';
 import { LibraryStateSchema, type LibraryState } from '../core/schema';
 import { decideVisibility } from '../core/visibility';
@@ -59,9 +59,10 @@ function decorate(state: LibraryState): void {
   try {
     installStyles();
 
+    const libraryIndex = createPageLibrary(state);
     for (const candidate of candidatesFor(store)) {
       resetCandidate(candidate);
-      const game = findGameForPage(state, candidate);
+      const game = findGameForPage(state, candidate, libraryIndex);
       const decision = decideVisibility(game, candidate, state.settings);
       if (decision.hide) {
         candidate.element.style.setProperty('display', 'none', 'important');

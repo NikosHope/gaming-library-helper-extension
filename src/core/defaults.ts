@@ -1,3 +1,4 @@
+import { RegistrySchema } from './reconciliation-schema';
 import type { DeviceProfile, LibraryState, Settings } from './schema';
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -35,7 +36,9 @@ export const DEFAULT_DEVICES: DeviceProfile[] = [
 
 export function createDefaultState(): LibraryState {
   return {
-    version: 5,
+    version: 6,
+    productAnnotations: [],
+    registry: RegistrySchema.parse({ version: 1 }),
     games: [],
     snapshots: {},
     settings: structuredClone(DEFAULT_SETTINGS),

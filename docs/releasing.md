@@ -25,5 +25,12 @@ bundled builds: [signing](https://extensionworkshop.com/documentation/publish/si
 [source submission](https://extensionworkshop.com/documentation/publish/source-code-submission/),
 [add-on policies](https://extensionworkshop.com/documentation/publish/add-on-policies/).
 
-There is no automatic signing or AMO publication in this repository. It requires a verified release
-candidate and the maintainer's explicit release action.
+Pushing a protected `v*` tag runs the release workflow. It checks that the tag is on `main` and
+matches the package/manifest version, runs all local gates and the full audit, reproduces the source
+ZIP, and publishes a GitHub **prerelease** with both ZIPs, checksums and build metadata. No signing
+credentials are available to this workflow. Publishing the prerelease does not satisfy steps 3, 7
+or 8. See [0.2.0 acceptance and limitations](releases/v0.2.0.md).
+
+Mozilla signing and AMO publication still require private developer credentials. Use `web-ext sign`
+with credentials supplied through the documented environment variables, never command-line arguments
+or checked-in files. Verify the signed artifact before promoting a prerelease.

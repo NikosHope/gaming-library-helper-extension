@@ -261,6 +261,7 @@ export async function captureSteamSnapshot(
         owned: true,
         ignoredAtSource: Object.hasOwn(parsed.data.rgIgnoredApps, String(appId)),
         importedAt,
+        ...(item.type !== undefined ? { sourceType: `steam-app-type:${item.type}` } : {}),
         classification: {
           kind,
           ...(kind === 'component'

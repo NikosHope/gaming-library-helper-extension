@@ -4,6 +4,7 @@ import { migrateLibraryState } from './migration';
 import { LibraryStateSchema, type LibraryState } from './schema';
 
 const STORAGE_KEY = 'gaming-library-helper/state';
+const MIGRATION_BACKUP_KEY = 'gaming-library-helper/migration-backup-v5';
 let updateQueue: Promise<unknown> = Promise.resolve();
 
 export async function loadState(): Promise<LibraryState> {
@@ -17,6 +18,20 @@ export async function loadState(): Promise<LibraryState> {
 
 export async function saveState(state: LibraryState): Promise<void> {
   const validated = LibraryStateSchema.parse(state);
+  const stored = await browser.storage.local.get(STORAGE_KEY);
+  const previous: unknown = stored[STORAGE_KEY];
+  if (
+    typeof previous === 'object' &&
+    previous !== null &&
+    'version' in previous &&
+    previous.version === 5
+  ) {
+    const backup = migrateLibraryState(previous);
+    if (!backup) throw new Error('Migration backup failed. Existing data is unchanged.');
+    await browser.storage.local.set({
+      [MIGRATION_BACKUP_KEY]: { version: 1, createdAt: new Date().toISOString(), state: backup },
+    });
+  }
   await browser.storage.local.set({ [STORAGE_KEY]: validated });
 }
 
