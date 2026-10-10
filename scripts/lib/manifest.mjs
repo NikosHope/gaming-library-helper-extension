@@ -17,8 +17,8 @@ export function inspectManifest(manifest) {
     errors.push('Required hosts changed; update policy and PRIVACY.md after review');
   if (!equalSet(manifest.optional_host_permissions, policy.optional_host_permissions))
     errors.push('Optional hosts changed; update policy and PRIVACY.md after review');
-  if ((manifest.optional_permissions ?? []).length)
-    errors.push('Optional API permissions require policy review');
+  if (!equalSet(manifest.optional_permissions, policy.optional_permissions))
+    errors.push('Optional API permissions changed; update policy and PRIVACY.md after review');
   const gecko = manifest.browser_specific_settings?.gecko;
   if (gecko?.id !== policy.gecko_id || gecko?.strict_min_version !== policy.strict_min_version)
     errors.push('Firefox identity or minimum version changed');

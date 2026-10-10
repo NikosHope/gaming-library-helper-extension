@@ -71,7 +71,8 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm verify
       - name: Checksums
-        run: sha256sum .output/*.zip > .output/SHA256SUMS
+        working-directory: .output
+        run: sha256sum *.zip > SHA256SUMS
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: firefox-unsigned-and-reviewer-source

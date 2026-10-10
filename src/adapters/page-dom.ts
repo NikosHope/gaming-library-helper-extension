@@ -100,6 +100,7 @@ export function collectGogCandidates(document: Document): DomGameCandidate[] {
     candidates.push({
       store: 'gog',
       title: cleanDetailTitle,
+      url: location.href,
       element: detailTitle,
       titleElement: detailTitle,
       isDetailPage: true,
@@ -126,6 +127,7 @@ export function collectGogCandidates(document: Document): DomGameCandidate[] {
     candidates.push({
       store: 'gog',
       ...(storeId ? { storeId } : {}),
+      url: anchor.href,
       title,
       element: root,
       titleElement,

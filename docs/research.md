@@ -39,12 +39,15 @@ and only enrich original IDs already owned; public metadata cannot create owners
 - [lsfg-vk](https://github.com/PancakeTAS/lsfg-vk) — GPL-3.0; [Decky integration](https://github.com/xXJSONDeruloXx/decky-lsfg-vk) is a separate community installer.
 - [Playnite](https://github.com/JosefNemec/Playnite) — MIT; model concepts only.
 - [node-steam-user](https://github.com/DoctorMcKay/node-steam-user/tree/e39d7cb8e0d4c83905f2d3896fb354b13f2591ec)
-  (steam-user 5.3.0) — MIT; public-only research, no PICS client shipped. Temporary websocket13 4.1.0
+  (steam-user 5.3.0) — MIT; anonymous PICS in the local Node runner only, excluded from the browser bundle. Temporary websocket13 4.1.0
   was MIT and is not a project dependency. `missingToken` and `unknownApps` are different outcomes.
 - [Austrum-lab catalogue](https://github.com/Austrum-lab/steam-appdb/tree/0823ff5fe804dd8a0efe4e112d87f37917434cf6)
   — no project license found; neither code nor dataset is redistributed.
 - [SteamTokenDumper schema](https://github.com/SteamDatabase/SteamTokenDumper/blob/master/PayloadDump.cs)
   — schema reference only. No dump or access key is shipped or uploaded.
+- [tsx](https://github.com/privatenumber/tsx/blob/master/LICENSE) — MIT; local TypeScript runner.
+  Its license and steam-user's [MIT license](https://github.com/DoctorMcKay/node-steam-user/blob/master/LICENSE)
+  were inspected before dependency use. Both are compatible with this MIT project.
 
 ## Firefox boundaries
 
@@ -92,6 +95,13 @@ must be restored from durable configuration after startup.
 [FSR](https://gpuopen.com/fidelityfx-super-resolution-3/) describe distinct execution/graphics layers.
 Generated FPS, native architecture, installer channel and VRR are independent claims.
 
-[IGDB](https://api-docs.igdb.com/#external-game) and [RAWG](https://rawg.io/apidocs) are possible future
-metadata sources only. No credentials, queries or library upload for these services are implemented.
+[IGDB](https://api-docs.igdb.com/#external-game) and [RAWG](https://rawg.io/apidocs) are optional local-runner metadata sources. IGDB uses Twitch confidential-client credentials; RAWG
+requires a user key and available store-link endpoints. The browser ships no catalog credentials.
+The runner checks exact external IDs/URLs; title searches are proposals only.
 Catalog mappings cannot replace authenticated ownership; ambiguous editions require review.
+
+[Native Messaging](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Native_messaging)
+uses stdio frames and a per-user host manifest restricted by `allowed_extensions`.
+[`optional_permissions`](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/optional_permissions)
+allows requesting `nativeMessaging` at the user's connection gesture. Host responses remain below 1 MiB
+through bounded chunks. Source-side API contracts and dates are retained independently from ownership.

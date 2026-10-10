@@ -21,10 +21,12 @@ The extension is split into four boundaries:
 
 ## Identity and matching
 
-Each canonical game has a stable internal ID and zero or one owned reference per store. A reference
-contains the store product ID, title, URL, and import evidence. Exact normalized titles can merge
-automatically. Explicit aliases can merge editions the user has reviewed. Fuzzy similarity produces
-only a reconciliation candidate.
+Schema v6 preserves legacy UUID records and adds a versioned catalog registry keyed by
+`(store, storeId)`. The main projection groups confirmed IGDB/RAWG identities and verified editions,
+including several owned products from one store. New connector products keep separate source UUIDs;
+titles and aliases cannot confirm identity. Existing legacy title-merged containers and annotations
+survive migration. Only verified external IDs/URLs or a separate human review ledger create catalog
+matches. Remakes/remasters remain separate. Unconfirmed identities and conflicts remain Unknown.
 
 This intentionally prefers false negatives over false positives: missing a badge is inconvenient;
 claiming ownership of the wrong edition can cause a bad purchase decision.
@@ -52,7 +54,8 @@ whole capture. Namespace/catalogItemId is the durable product identity. Confirme
 are excluded and unknown products remain unresolved. Optional Epic host access is requested on
 connection. Fictional tests cover cursor completion, repeated identities and conflicts.
 
-Steam/GOG decoration derives ownership from resolved references in every other supported store.
+Steam/GOG decoration derives ownership from the confirmed catalog projection and exact provider IDs.
+A title-only match cannot create a badge or hide a page candidate.
 DOM parsing removes the extension's own badges from a temporary clone. The observer is disconnected
 while decorating, so badge writes do not schedule an endless sequence of refreshes. Epic has capture
 support only and does not start that DOM observer.
@@ -116,3 +119,20 @@ and pending live acceptance.
 Amazon Connect has explicit user authorization for an OAuth credential path. It requests narrow optional Amazon hosts and Firefox authentication-data consent. Passwords and existing cookie/session-token values are never read. A cryptographic PKCE verifier, nonce, random device serial, one extension-created tab ID, and ten-minute expiry form a version-1 pending flow in storage.session, which is not exposed to content scripts by default. The top-level Firefox URL-change listener verifies the pending tab ID before accepting an exact Amazon root callback with its nonce. It clears the callback URL, exchanges the code through a fixed HTTPS endpoint with redirect forwarding disabled, and saves only bearer credentials under a separate version-1 local key. Failed/new sign-ins preserve the previous credential and every library snapshot. Status messages return booleans only.
 
 The options page and every runtime Amazon action require the extension-page sender boundary. Amazon pages run no content script and receive no tokens. The background refreshes credentials and can perform bounded distribution-source inspection. Diagnostics return counts, public type/state categories, schema field types and a provider-ID hash only. The observed distribution response omits product.type and the terminal cursor. Complete cursor pagination accepts these optional fields while rejecting invalid fields, repeated cursors, conflicting licenses and conflicting product titles. The app collector accepts only LIVE Sonic:Game products, excludes external Twitch:FuelEntitlement and non-live licenses, and rejects unknown live categories. The scheduler commits a complete Amazon snapshot through the same atomic core merge; failures preserve every library snapshot. Successful explicit authorization enables Amazon in the existing schedule when its options page reads the completed connection.
+
+## Local reconciliation boundary
+
+The optional `glh_reconciliation` Native Messaging host connects only this add-on's stable Gecko ID.
+It supports fixed, bounded snapshot publication, accepted-result reading, and human-review operations;
+messages cannot select paths or execute arbitrary commands. The extension polls on startup, a restored
+15-minute alarm, manual refresh and committed library changes. Its serialized storage queue rechecks
+the live input hash before applying only metadata. Revoked permissions, stale input, malformed chunks
+and host failures preserve ownership and the last imported registry.
+
+Repository Node scripts perform anonymous Valve PICS and IGDB then RAWG enrichment. PICS remains
+outside the browser bundle. Mac Keychain holds catalog credentials; OAuth app tokens exist only in
+runner memory. Strict sanitized footprints exclude account fields, credentials, personal notes,
+UUIDs and performance annotations. Ignored private files use atomic renames and runner/snapshot locks.
+A closed Firefox leaves a processable retained snapshot; imports resume only after Firefox opens.
+LLM research consumes the unresolved remainder and produces strict candidates, never accepted flags.
+See [reconciliation.md](reconciliation.md) for schemas, rules, CLI, scheduling assumptions and live gates.

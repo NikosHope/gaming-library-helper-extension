@@ -1,4 +1,31 @@
-# Product records and grouping (library schema v5)
+# Product records and grouping (library schema v6)
+
+## Current identity and projection rules
+
+Schema v6 preserves the source records, UUIDs and annotations from v5 and adds a versioned
+catalog registry. New imports retain separate products keyed by `(store, storeId)`; matching
+titles or aliases do not merge their identities. Migration creates a local sanitized backup
+before replacing the stored state.
+
+`projectLibrary` displays independently playable games with a verified IGDB or RAWG identity.
+Confirmed editions share their catalog base; remakes and remasters keep separate identities.
+Each projected game retains all owned products, including multiple products from one store.
+Metadata and package membership never create ownership. Unconfirmed identities, conflicting
+positive evidence and unproven independence appear in Unknown. Confirmed non-games and
+deterministically inferred package markers appear in technical records.
+
+Only complete package observations support marker inference. Multiple confirmed game families
+suggest a bundle; one suggests an edition or component. Unknown neighbours do not count as
+families, and already confirmed games keep their game role. Partial manual observations retain
+associations without inferring a role. App 3575160 therefore retains its own identity and its
+association with package 817628 and the three GTA apps, without inheriting their names or ownership.
+
+The local runner validates external IDs and approved review receipts against the current input
+hash. Title search and LLM proposals populate a review queue. A proposal's own confirmation flag
+is rejected by the exchange schema. See [the reconciliation workflow](reconciliation.md) for
+the exchange formats, official per-product OS evidence and optional Native Messaging bridge.
+
+The sections below record the earlier v5 classification model and dated reviewed evidence.
 
 A canonical record is not necessarily a primary game. Each store reference can describe a
 `game`, `component`, `tool`, `auxiliary` entitlement, or `unknown` product. A component subtype
@@ -7,10 +34,10 @@ resolved/unresolved title status, ownership, import time, URL and source-ignore 
 Classification labels are separate from the original provider title. Reviewed classifications retain
 source links and primary/community confidence. They are local product rules, not IGDB/RAWG mappings.
 
-## Conservative identity
+## Earlier v5 identity and grouping
 
-Only resolved primary-game references can automatically merge through exact normalized titles or
-explicit aliases. Components, tools, auxiliary entries and unknowns cannot supply cross-store
+V5 merged resolved primary-game references through exact normalized titles or explicit aliases;
+v6 replaces that rule with verified catalog identity. Components, tools, auxiliary entries and unknowns cannot supply cross-store
 ownership badges or hiding decisions. A reviewed component parent is an explicit store + product ID,
 not a guessed title match or another item in the same license package.
 

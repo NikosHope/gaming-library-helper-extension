@@ -1,5 +1,6 @@
 allowBuilds:
   esbuild: true
+  protobufjs: false
   spawn-sync: false
 
 # Minimal patched versions for upstream tool dependencies. Keep the audit strict.
@@ -10,3 +11,8 @@ overrides:
   'adm-zip@<0.6.1': 0.6.1
   'uuid@<11.1.1': 11.1.1
   'esbuild@<0.28.1': 0.28.1
+  'steam-appticket>protobufjs': 7.6.6
+
+  # Firefox Desktop only: do not install the unused Android ADB/RSA dependency tree.
+  'web-ext>@devicefarmer/adbkit': '-'
+  'web-ext-run>@devicefarmer/adbkit': '-'

@@ -9,6 +9,7 @@ highlights cross-store ownership, can hide cross-owned or ignored games, and kee
 Read `docs/architecture.md` before changing boundaries or storage. Use the repo skill
 `firefox-extension-development` for manifest, content-script, store-adapter, permission,
 privacy, and release work.
+For reconciliation, follow `docs/reconciliation.md`; Cursor and ChatGPT use the same CLI and review ledger.
 
 ## Commands
 
@@ -27,8 +28,9 @@ privacy, and release work.
   fail with a user-visible, actionable message.
 - Import each store as an atomic snapshot. Never erase the last good snapshot after a partial or
   failed sync.
-- Auto-merge only exact normalized titles or explicit aliases. Fuzzy matches are suggestions and
-  require confirmation; false ownership is worse than a missed match.
+- Confirm identity only through verified IGDB/RAWG external IDs or a separate human review.
+  Title searches and aliases are suggestions; new connector records never merge solely by title.
+  Preserve legacy UUID containers and annotations, while the catalog projection determines games.
 - Store provider IDs alongside canonical IDs. Never use a display title as the sole durable ID.
 - Version every persisted schema and add migration tests before changing it.
 - Keep performance assessments evidence-based and device-specific. Distinguish native FPS,

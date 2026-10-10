@@ -33,16 +33,22 @@ shell-quote, tmp, adm-zip, uuid and esbuild to published patched versions. Full 
 lint validate compatibility. Remove each override when upstream requirements and the lockfile converge
 on safe versions. Do not replace an audit failure with `continue-on-error` or a broad ignored range.
 
-One exact, expiring exception is retained for
-[GHSA-86w9-cpqp-85rv](https://github.com/advisories/GHSA-86w9-cpqp-85rv): node-forge 1.4.0 in the
-development-only Android ADB dependencies of web-ext and WXT's web-ext-run. The advertised 1.4.1 patch
-is not published in npm as of 2026-10-09. This Firefox project does not run Android ADB or ship node-forge.
-The audit checks exact advisory, package/version, development-only flags, allowed dependency paths
-and expiry (2026-11-09). A runtime dependency, new path, another high/critical advisory or expired
-exception fails CI. Remove the exception as soon as the patch is available.
+The local Steam runner brings `steam-appticket`, whose old dependency selects protobufjs 6.x.
+Its narrow `steam-appticket>protobufjs` override pins 7.6.6, the maintained 7.x release with
+[backported fixes](https://github.com/protobufjs/protobuf.js/releases/tag/protobufjs-v7.6.6).
+Runner tests exercise the shipped static app-ticket codec and PICS request schemas against this
+version without network or account data. This override adds no security exception and does not
+bundle protobufjs into Firefox.
 
-`pnpm check:audit` needs registry access and fails on an incomplete response. Raw `pnpm audit` still
-reports the disclosed exception; it is not silently suppressed in pnpm configuration.
+There are no audit exceptions. Firefox Desktop development does not need Android ADB.
+Scoped pnpm removal overrides exclude `@devicefarmer/adbkit` from `web-ext` and `web-ext-run`,
+removing the entire unused dependency path to vulnerable `node-forge`. The official runners load
+Android code only for the Android target; desktop development, lint and packaging retain their
+normal implementation. Android development is unsupported in this checkout.
+
+`pnpm test:controls` verifies that both installed desktop runners load without ADB and that the
+lockfile cannot reintroduce ADB/node-forge. `pnpm check:audit` needs registry access and fails on an
+incomplete response. Full `pnpm audit` is clean as of 2026-10-09, with no suppressed advisories.
 
 ## Browser acceptance
 

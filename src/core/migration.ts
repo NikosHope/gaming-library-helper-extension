@@ -10,13 +10,19 @@ import {
 } from './schema';
 
 const LegacyStoreSchema = z.enum(['steam', 'gog']);
-const LegacyLibraryStateV4Schema = LibraryStateSchema.extend({ version: z.literal(4) });
+const LegacyLibraryStateV5Schema = LibraryStateSchema.omit({
+  registry: true,
+  productAnnotations: true,
+}).extend({
+  version: z.literal(5),
+});
+const LegacyLibraryStateV4Schema = LegacyLibraryStateV5Schema.extend({ version: z.literal(4) });
 const LegacyGameSchema = CanonicalGameSchema.extend({
   storeRefs: z
     .record(LegacyStoreSchema, StoreGameRefSchema.extend({ store: LegacyStoreSchema }))
     .default({}),
 });
-const LegacyLibraryStateV3Schema = LibraryStateSchema.extend({
+const LegacyLibraryStateV3Schema = LegacyLibraryStateV5Schema.extend({
   version: z.literal(3),
   games: z.array(LegacyGameSchema),
   snapshots: z.record(LegacyStoreSchema, SnapshotMetaSchema),
@@ -76,6 +82,9 @@ function legacyLaunchPathId(gameIndex: number, deviceId: string, assessmentIndex
 export function migrateLibraryState(value: unknown): LibraryState | undefined {
   const current = LibraryStateSchema.safeParse(value);
   if (current.success) return current.data;
+
+  const v5 = LegacyLibraryStateV5Schema.safeParse(value);
+  if (v5.success) return LibraryStateSchema.parse({ ...v5.data, version: 6 });
 
   const v4 = LegacyLibraryStateV4Schema.safeParse(value);
   if (v4.success) return upgrade(v4.data);
@@ -145,11 +154,13 @@ export function migrateLibraryState(value: unknown): LibraryState | undefined {
   return upgrade(upgraded);
 }
 
-function upgrade(value: Omit<LibraryState, 'version'> & { version: number }): LibraryState {
+function upgrade(
+  value: Omit<LibraryState, 'version' | 'registry' | 'productAnnotations'> & { version: number },
+): LibraryState {
   return separateProductKinds(
     LibraryStateSchema.parse({
       ...value,
-      version: 5,
+      version: 6,
       games: value.games.map((game) => ({
         ...game,
         storeRefs: Object.fromEntries(

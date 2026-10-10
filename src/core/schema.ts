@@ -1,34 +1,8 @@
 import { z } from 'zod/v3';
 
-export const StoreSchema = z.enum(['steam', 'gog', 'epic', 'amazon', 'battlenet']);
-export type Store = z.infer<typeof StoreSchema>;
-
-export const ProductKindSchema = z.enum(['game', 'component', 'tool', 'auxiliary', 'unknown']);
-export type ProductKind = z.infer<typeof ProductKindSchema>;
-export const ProductClassificationSchema = z
-  .object({
-    kind: ProductKindSchema,
-    componentType: z
-      .enum(['beta', 'mode', 'dlc', 'demo', 'localization', 'core', 'other'])
-      .optional(),
-    label: z.string().min(1).optional(),
-    source: z.enum(['store-metadata', 'reviewed-rule', 'community-rule']),
-    confidence: z.enum(['primary', 'community']).default('primary'),
-    evidenceUrls: z.array(z.string().url()).min(1),
-    parent: z
-      .object({
-        store: StoreSchema,
-        storeId: z.string().min(1),
-        title: z.string().min(1),
-        evidenceUrl: z.string().url(),
-      })
-      .optional(),
-  })
-  .refine(
-    (value) => !value.parent || value.kind === 'component',
-    'Only components can have a parent',
-  );
-export type ProductClassification = z.infer<typeof ProductClassificationSchema>;
+import { StoreSchema, ProductClassificationSchema } from './store-schema';
+import { RegistrySchema } from './reconciliation-schema';
+export * from './store-schema';
 
 export const StoreGameRefSchema = z.object({
   store: StoreSchema,
@@ -40,8 +14,13 @@ export const StoreGameRefSchema = z.object({
   ignoredAtSource: z.boolean().default(false),
   importedAt: z.string().datetime(),
   classification: ProductClassificationSchema.optional(),
+  sourceType: z.string().min(1).max(100).optional(),
 });
 export type StoreGameRef = z.infer<typeof StoreGameRefSchema>;
+export const ProductLocatorSchema = z
+  .object({ store: StoreSchema, storeId: z.string().min(1).max(300) })
+  .strict();
+export const ProductAnnotationSchema = ProductLocatorSchema.extend({ ignored: z.boolean() });
 
 export const DeviceProfileSchema = z.object({
   id: z.string().min(1),
@@ -177,7 +156,16 @@ export const SnapshotMetaSchema = z.object({
 });
 
 export const LibraryStateSchema = z.object({
-  version: z.literal(5),
+  version: z.literal(6),
+  registry: RegistrySchema.default(() => RegistrySchema.parse({ version: 1 })),
+  productAnnotations: z
+    .array(ProductAnnotationSchema)
+    .max(50_000)
+    .default([])
+    .refine(
+      (entries) =>
+        new Set(entries.map((entry) => `${entry.store}:${entry.storeId}`)).size === entries.length,
+    ),
   games: z.array(CanonicalGameSchema),
   snapshots: z.record(StoreSchema, SnapshotMetaSchema),
   settings: SettingsSchema,

@@ -1,6 +1,6 @@
 {
   "name": "gaming-library-helper",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "A local-first Firefox extension that unifies Steam and GOG ownership while browsing their stores.",
   "type": "module",
@@ -10,6 +10,8 @@
     "node": ">=22.22.0"
   },
   "scripts": {
+    "reconcile": "node --import tsx scripts/reconciliation/cli.mjs",
+    "test:reconciliation": "node --import tsx --test scripts/reconciliation/*.test.mjs",
     "dev": "wxt -b firefox --mv3",
     "dev:firefox": "wxt -b firefox --mv3",
     "build": "wxt build -b firefox --mv3",
@@ -29,7 +31,7 @@
     "check:package": "node scripts/check-package.mjs",
     "check:audit": "node scripts/check-audit.mjs",
     "test:controls": "node --test scripts/test-controls.mjs",
-    "verify": "pnpm check:public && pnpm check:secrets && pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:controls && pnpm test:coverage && pnpm build:firefox && pnpm lint:addon && pnpm check:manifest",
+    "verify": "pnpm check:public && pnpm check:secrets && pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:controls && pnpm test:reconciliation && pnpm test:coverage && pnpm build:firefox && pnpm lint:addon && pnpm check:manifest",
     "prepare": "husky",
     "postinstall": "wxt prepare"
   },
@@ -47,6 +49,8 @@
     "linkedom": "0.18.13",
     "prettier": "^3.9.9",
     "secretlint": "^13.0.7",
+    "steam-user": "5.3.0",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.71.1",
     "vitest": "^4.1.11",

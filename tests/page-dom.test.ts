@@ -69,6 +69,27 @@ describe('content decoration refresh', () => {
         },
       ],
     }).state;
+    state.registry.records.push({
+      identity: { provider: 'igdb', id: 1 },
+      title: 'Example Space Game',
+      kind: 'game',
+      dependency: 'none',
+      independenceEvidence: [],
+      url: 'https://www.igdb.com/games/example-space-game',
+      checkedAt: '2026-10-08T08:00:00.000Z',
+      externalRefs: [
+        { store: 'steam', storeId: '10' },
+        { store: 'gog', storeId: '20' },
+      ],
+    });
+    state.registry.matches.push({
+      store: 'gog',
+      storeId: '20',
+      catalog: { provider: 'igdb', id: 1 },
+      method: 'external-id',
+      evidenceUrls: ['https://www.gog.com/game/example_space_game'],
+      verifiedAt: '2026-10-08T08:00:00.000Z',
+    });
     api.send.mockResolvedValue(state);
     const entrypoint = await import('../src/entrypoints/store.content');
     const main = entrypoint.default.main?.bind(entrypoint.default);

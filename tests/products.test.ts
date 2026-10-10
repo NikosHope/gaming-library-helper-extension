@@ -81,15 +81,15 @@ describe('product identity and ownership', () => {
     expect(ownedOnOtherStores(state.games[0]!, 'gog')).toEqual([]);
   });
 
-  it('deduplicates the parent across stores while retaining every component ID', () => {
+  it('retains raw parent products and every component ID before catalog reconciliation', () => {
     const steam = capture([ref('379720', 'DOOM'), ref('350470', 'DOOM Open Beta')]);
     const state = replaceStoreSnapshot(steam, {
       store: 'gog',
       syncedAt: time,
       refs: [ref('42', 'DOOM', 'gog')],
     }).state;
-    expect(state.games).toHaveLength(2);
-    expect(countProducts(state).game).toBe(1);
+    expect(state.games).toHaveLength(3);
+    expect(countProducts(state).game).toBe(2);
     expect(groupLibrary(state)[0]?.components).toHaveLength(1);
     expect(
       ownedOnOtherStores(
@@ -152,7 +152,7 @@ describe('product identity and ownership', () => {
     const before = structuredClone(input);
     const state = migrateLibraryState(input)!;
     expect(input).toEqual(before);
-    expect(state.version).toBe(5);
+    expect(state.version).toBe(6);
     expect(state.games[0]).toMatchObject({
       id: entry.id,
       notes: 'My note',
