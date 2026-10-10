@@ -6,6 +6,7 @@ export default defineConfig({
     // WXT excludes tests and dotfiles by default; the reviewer must reproduce all checks.
     includeSources: [
       'tests/**',
+      'scripts/**/*.test.mjs',
       '.gitignore',
       '.prettierrc.json',
       '.prettierignore',
