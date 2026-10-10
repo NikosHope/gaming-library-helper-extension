@@ -22,6 +22,19 @@ pnpm reconcile keys setup
 pnpm reconcile status
 ```
 
+If dependencies are already installed but `pnpm` is unavailable in the user's terminal,
+invoke the same CLI directly through Node:
+
+```sh
+node --import tsx scripts/reconciliation/cli.mjs keys setup
+node --import tsx scripts/reconciliation/cli.mjs status
+```
+
+Use the absolute path to your installed Node executable if `node` is also absent from the
+terminal's PATH. A pnpm runtime bundled with an agent application may not be available in your shell. Direct invocation supports the same collect/validate/approve
+operations and uses the repository's installed dependencies; it does not require a global pnpm
+installation or a shell-profile change.
+
 `keys setup` must run in the user's interactive terminal. It hides input and writes directly to
 macOS Keychain under service `Gaming Library Helper reconciliation`, with accounts
 `igdb-client-id`, `igdb-client-secret`, and `rawg-key`. Blank input preserves an existing value.
